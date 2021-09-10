@@ -1,0 +1,54 @@
+#基础镜像信息
+FROM ubuntu:20.04
+
+#维护者信息
+MAINTAINER yangtiger yangtiger2005@163.com
+
+#USER指令用于设置用户或uid来运行生成的镜像和执行 RUN 指令。
+USER root
+
+#ubuntu换源
+RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak
+
+#ADD src 路径必须与 Dockerfile 在同级目录或子目录中
+ADD ./sources.list /etc/apt/sources.list
+
+#更新并安装pip3
+RUN apt update && apt install -y python3-pip tzdata
+
+# 环境变量
+ENV LANG en_US.UTF-8
+
+# 设置时区
+#RUN mkdir -p /usr/share/zoneinfo/Asia/
+#COPY ./Shanghai /usr/share/zoneinfo/Asia/Shanghai
+#RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+#RUN echo "Asia/Shanghai" > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
+
+RUN mkdir -p /usr/share/zoneinfo/Asia/
+COPY ./Shanghai /usr/share/zoneinfo/Asia/Shanghai
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN dpkg-reconfigure -f noninteractive tzdata
+
+# 都docker了 觉得没必要再装虚拟环境
+# ubuntu安装git 这么做每次都得重做images 或者 在容器外部写脚本 把push到本地 然后再run 容器启动时 把项目文件挂上去
+# 从git上拉代码
+#复制文件到容器中 这次不用add用copy
+COPY . /opt/workplace
+
+# pip3临时换源安装依赖
+RUN pip3 install -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com -r /opt/workplace/requirements.txt
+
+#RUN ln -s /usr/local/python3/bin/gunicorn /usr/bin/gunicorn
+
+# 暴露端口
+EXPOSE 8000
+
+#workdir
+WORKDIR /opt/workplace/
+
+#启动
+#CMD /usr/local/python3/bin/gunicorn hellodjango.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 30 --daemon --access-logfile ./hellodjango/access.log --error-logfile ./hellodjango/gunicorn_logs/error.log
+#CMD ["gunicorn", "-c", "hellodjango/gunicorn/gunicorn_config.py","hellodjango.wsgi", "--preload"]
+#CMD ["python3 /opt/workpalce/hellodjango/manage.py runserver 0.0.0.0:8000"]
+CMD ["supervisord", "-c", "supervisor/supervisor.conf"]
