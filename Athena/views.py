@@ -10,4 +10,4 @@ def hello_world(request):
 
 # 模板返回
 def index(request):
-    return render(request, 'athena_templates/index.html')
+    return render(request, 'athena_templates/index.html', {'welcome': 'hello'})
