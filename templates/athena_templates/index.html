@@ -9,6 +9,10 @@
     <center style="margin-top: 100px;">
     <h1> 欢迎 {{ welcome }}</h1>
     <h1> {{ year }} {{ month }}</h1>
+    <!-- "/index/2014"这个是ip或域名后的路径 -->
+    <a href="/index/2014">硬编码：跳转</a>
+    <!-- 参数通过空格加入 -->
+    <a href="{% url 'index_year_month' 2020 11 %}">通过路由名带参数：跳转</a>
     </center>
 </body>
 </html>
