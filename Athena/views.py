@@ -4,6 +4,10 @@ from . import models
 # Create your views here.
 
 
+def add_book(request):
+    return render(request, 'books/add.html')
+
+
 def demo(request):
     # 添加数据的一种方式
     # student = models.Student()
