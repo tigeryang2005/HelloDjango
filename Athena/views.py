@@ -14,9 +14,19 @@ def demo(request):
     # s = student.save()
     # print(s, type(s))
     # 添加数据的另一种方式
-    data = {'name': '李四', 'age': 21, 'sex': '0', 'address': '天津'}
-    student = models.Student(**data)
-    student.save()
+    # data = {'name': '李四', 'age': 21, 'sex': '0', 'address': '天津'}
+    # student = models.Student(**data)
+    # student.save()
+    # 查询数据
+    data = models.Student.objects.all()
+    print(data)
+    for s in data:
+        print(s.name)
+    data = models.Student.objects.get(pk=1)
+    print(data.name)
+    data = models.Student.objects.filter(sex='0')
+    for s in data:
+        print(s.sex)
     return HttpResponse('模型类的测试')
 
 
