@@ -1,9 +1,18 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from . import models
 # Create your views here.
 
 
 def demo(request):
+    # 添加数据的一种方式
+    student = models.Student()
+    student.name = '张三'
+    student.age = 24
+    student.sex = '1'
+    student.address = '天津'
+    s = student.save()
+    print(s, type(s))
     return HttpResponse('模型类的测试')
 
 
