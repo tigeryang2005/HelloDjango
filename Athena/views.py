@@ -6,13 +6,17 @@ from . import models
 
 def demo(request):
     # 添加数据的一种方式
-    student = models.Student()
-    student.name = '张三'
-    student.age = 24
-    student.sex = '1'
-    student.address = '天津'
-    s = student.save()
-    print(s, type(s))
+    # student = models.Student()
+    # student.name = '张三'
+    # student.age = 24
+    # student.sex = '1'
+    # student.address = '天津'
+    # s = student.save()
+    # print(s, type(s))
+    # 添加数据的另一种方式
+    data = {'name': '李四', 'age': 21, 'sex': '0', 'address': '天津'}
+    student = models.Student(**data)
+    student.save()
     return HttpResponse('模型类的测试')
 
 
