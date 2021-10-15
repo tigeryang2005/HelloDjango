@@ -3,6 +3,10 @@ from django.http import HttpResponse
 # Create your views here.
 
 
+def demo(request):
+    return HttpResponse('模型类的测试')
+
+
 # 字符串返回
 def hello_world(request):
     return HttpResponse('hello world!')
