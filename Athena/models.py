@@ -8,7 +8,7 @@ class Books(models.Model):
     author = models.CharField(max_length=100)
     publisher = models.CharField(max_length=100)
     abstract = models.TextField()
-    img_url = models.CharField(max_length=150)
+    img_url = models.CharField(max_length=150, null=True)
     pub_date = models.DateField()
     price = models.FloatField()
 

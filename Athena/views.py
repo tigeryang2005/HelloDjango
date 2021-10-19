@@ -1,6 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from . import models
+import time
+
+
 # Create your views here.
 
 
@@ -11,9 +14,39 @@ def add_book(request):
     else:
         data = request.POST.dict()
         data.pop('csrfmiddlewaretoken')
-        book = models.Books(**data)
-        book.save()
-        return HttpResponse("添加数据")
+
+        # 处理上传的文件
+        img_url = img_upload(data, request)
+        if img_url:
+            data['img_url'] = img_url
+        else:
+            data.pop('img_url')
+
+        try:
+            book = models.Books(**data)
+            book.save()
+            return HttpResponse("添加数据成功")
+        except:
+            return HttpResponse("添加数据失败")
+
+
+def img_upload(data, request):
+    file = request.FILES.get('img_url', None)
+    print(file)
+    print(file.name)
+    print(data)
+    if file:
+        file_path = './static/uploads/' + data.get('name') + str(int(time.time())) + '.' + file.name.split('.').pop()
+        print(file_path)
+        try:
+            with open(file_path, mode='wb+') as f:
+                for chunk in file.chunks():
+                    f.write(chunk)
+            return file_path
+        except:
+            return None
+    else:
+        return None
 
 
 def demo(request):
