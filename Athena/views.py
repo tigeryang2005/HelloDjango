@@ -32,12 +32,8 @@ def add_book(request):
 
 def img_upload(data, request):
     file = request.FILES.get('img_url', None)
-    print(file)
-    print(file.name)
-    print(data)
     if file:
         file_path = './static/uploads/' + data.get('name') + str(int(time.time())) + '.' + file.name.split('.').pop()
-        print(file_path)
         try:
             with open(file_path, mode='wb+') as f:
                 for chunk in file.chunks():
