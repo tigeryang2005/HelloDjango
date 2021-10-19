@@ -4,6 +4,8 @@ from . import models
 import time
 import os
 import traceback
+import logging
+logger = logging.getLogger('log')
 
 
 # Create your views here.
@@ -30,7 +32,7 @@ def add_book(request):
             return HttpResponse("添加数据成功")
         except:
             os.remove(img_url)
-            print(traceback.format_exc())
+            logger.error(traceback.format_exc())
             return HttpResponse("添加数据失败")
 
 
@@ -44,7 +46,7 @@ def img_upload(data, request):
                     f.write(chunk)
             return file_path
         except:
-            print(traceback.format_exc())
+            logger.error(traceback.format_exc())
             return None
     else:
         return None
