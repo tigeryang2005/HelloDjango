@@ -5,7 +5,15 @@ from . import models
 
 
 def add_book(request):
-    return render(request, 'books/add.html')
+    # 判断当前的请求方式，如果是get只返回html 如果是post则添加数据
+    if request.method == 'GET':
+        return render(request, 'books/add.html')
+    else:
+        data = request.POST.dict()
+        data.pop('csrfmiddlewaretoken')
+        book = models.Books(**data)
+        book.save()
+        return HttpResponse("添加数据")
 
 
 def demo(request):
@@ -31,7 +39,7 @@ def demo(request):
     data = models.Student.objects.filter(sex='0')
     for s in data:
         print(s.sex)
-    return HttpResponse('模型类的测试')
+    return render(request, 'athena_templates/demo.html')
 
 
 # 字符串返回
