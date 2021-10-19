@@ -133,3 +133,4 @@ dmypy.json
 .pyre/
 
 /Athena/migrations/
+/static/bootstrap-3.4.1-dist/
