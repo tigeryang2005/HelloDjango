@@ -23,39 +23,43 @@
   <body>
     <div class="container">
         <div class="row" style="margin-top: 50px">
-            <table class="table table-bordered">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>封面</th>
-                  <th>书籍名称</th>
-                  <th>作者</th>
-                  <th>单价</th>
-                  <th>出版社</th>
-                  <th>出版时间</th>
-                  <th>简介</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody>
-               {% for i in data %}
-                <tr>
-                  <th scope="row">{{ i.id }}</th>
-                  <td><img src="{{ i.img_url }}" style="width: 100px;" alt="暂时无法显示"></td>
-                  <td>{{ i.name }}</td>
-                  <td>{{ i.author }}</td>
-                  <td>{{ i.price }}</td>
-                  <td>{{ i.publisher }}</td>
-                  <td>{{ i.pub_date }}</td>
-                  <td>{{ i.abstract }}</td>
-                  <td>
-                      <a href="">删除</a>
-                      <a href="">修改</a>
-                  </td>
-                </tr>
-               {% endfor %}
-              </tbody>
-            </table>
+            <div class="col-md-10 col-md-offset-1">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>封面</th>
+                      <th>书籍名称</th>
+                      <th>作者</th>
+                      <th>单价</th>
+                      <th>出版社</th>
+                      <th>出版时间</th>
+                      <th>简介</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                    <tbody>
+                   {% for i in data %}
+                    <tr>
+                      <th scope="row">{{ i.id }}</th>
+                      <td><img src="{{ i.img_url }}" style="width: 100px;" alt="暂时无法显示"></td>
+                      <td>{{ i.name }}</td>
+                      <td>{{ i.author }}</td>
+                      <td>{{ i.price }}</td>
+                      <td>{{ i.publisher }}</td>
+                      <td>{{ i.pub_date | date:'Y-m-d'}}</td>
+                      <td>{{ i.abstract }}</td>
+                      <td>
+                          <a href="">删除</a>
+                          <a href="">修改</a>
+                      </td>
+                    </tr>
+                   {% endfor %}
+                  </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
   </body>
