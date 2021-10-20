@@ -12,6 +12,16 @@ logger = logging.getLogger('log')
 # Create your views here.
 
 
+def del_book(request, book_id):
+    try:
+        book = models.Books.objects.get(id=book_id)
+        os.remove('.' + book.img_url)
+        book.delete()
+    except:
+        logger.error(traceback.format_exc())
+    return redirect('list_book')
+
+
 def list_book(request):
     data = models.Books.objects.all()
     context = {'data': data}
