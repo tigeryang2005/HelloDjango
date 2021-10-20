@@ -1,5 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.urls import reverse
 from . import models
 import time
 import os
@@ -28,24 +29,24 @@ def add_book(request):
         # 处理上传的文件
         img_url = img_upload(data, request)
         if img_url:
-            data['img_url'] = img_url
+            data['img_url'] = img_url[1:]
         else:
             data.pop('img_url')
 
         try:
             book = models.Books(**data)
             book.save()
-            return HttpResponse("添加数据成功")
+            return redirect(reverse('list_book'))
         except:
             os.remove(img_url)
             logger.error(traceback.format_exc())
-            return HttpResponse("添加数据失败")
+            return redirect(reverse('add_book'), {'add_failed': '添加数据失败'})
 
 
 def img_upload(data, request):
     file = request.FILES.get('img_url', None)
     if file:
-        file_path = '/static/uploads/' + data.get('name') + str(int(time.time())) + '.' + file.name.split('.').pop()
+        file_path = './static/uploads/' + data.get('name') + str(int(time.time())) + '.' + file.name.split('.').pop()
         try:
             with open(file_path, mode='wb+') as f:
                 for chunk in file.chunks():
