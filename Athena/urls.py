@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
      re_path('book/add/', views.add_book, name='add_book'),
+     re_path('book/list', views.list_book, name='list_book'),
      path('', views.hello_world),
      re_path('^demo/$', views.demo, name='demo'),
      re_path('^index/$', views.index),

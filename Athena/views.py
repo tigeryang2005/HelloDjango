@@ -11,6 +11,12 @@ logger = logging.getLogger('log')
 # Create your views here.
 
 
+def list_book(request):
+    data = models.Books.objects.all()
+    context = {'data': data}
+    return render(request, 'books/list.html', context)
+
+
 def add_book(request):
     # 判断当前的请求方式，如果是get只返回html 如果是post则添加数据
     if request.method == 'GET':
@@ -39,7 +45,7 @@ def add_book(request):
 def img_upload(data, request):
     file = request.FILES.get('img_url', None)
     if file:
-        file_path = './static/uploads/' + data.get('name') + str(int(time.time())) + '.' + file.name.split('.').pop()
+        file_path = '/static/uploads/' + data.get('name') + str(int(time.time())) + '.' + file.name.split('.').pop()
         try:
             with open(file_path, mode='wb+') as f:
                 for chunk in file.chunks():
