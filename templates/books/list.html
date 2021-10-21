@@ -25,6 +25,7 @@
         <div class="row" style="margin-top: 50px">
             <div class="col-md-10 col-md-offset-1">
                 <div class="table-responsive">
+                    {# todo  选一个更好的table 能查询 小框添加 更新 然后刷新页面               #}
                     <table class="table table-bordered">
                     <thead>
                     <tr>
@@ -51,8 +52,8 @@
                       <td>{{ i.pub_date | date:'Y-m-d'}}</td>
                       <td>{{ i.abstract }}</td>
                       <td>
-                          <a href="">删除</a>
-                          <a href="">修改</a>
+                          <a href="{% url 'del_book' i.id %}">删除</a>
+                          <a href="{% url 'edit_book' %}?id={{ i.id }}">修改</a>
                       </td>
                     </tr>
                    {% endfor %}

@@ -12,6 +12,32 @@ logger = logging.getLogger('log')
 # Create your views here.
 
 
+def update_book(request):
+    data = request.POST.dict()
+    data.pop('csrfmiddlewaretoken')
+    # 判断是否更新图片
+    file = request.FILES.get('img_url', None)
+    book = models.Books.objects.get(id=data.get('id'))
+    if file:
+        file_name = img_upload(data, request)
+        if file_name:
+            data['img_url'] = file_name[1:]
+        else:
+            data.pop('img_url')
+        os.remove('.' + book.img_url)
+    else:
+        data['img_url'] = book.img_url
+    models.Books.objects.filter(id=data.get('id')).update(**data)
+
+    return HttpResponse('更新')
+
+
+def edit_book(request):
+    id = request.GET.get('id')
+    book = models.Books.objects.get(id=id)
+    return render(request, 'books/edit.html', {'book': book})
+
+
 def del_book(request, book_id):
     try:
         book = models.Books.objects.get(id=book_id)
