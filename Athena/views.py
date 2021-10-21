@@ -127,14 +127,20 @@ def demo(request):
     # # 一对一模型添加
     # student = models.Student(**student_data)
     # student.save()
-    student = models.Student.objects.get(pk=2)
-    student_info = {
-        'sid': student,
-        'xueli': '硕士',
-        'phone': '13888888888'
-    }
-    student_info_obj = models.StuInfo(**student_info)
-    student_info_obj.save()
+    # student = models.Student.objects.get(pk=2)
+    # student_info = {
+    #     'sid': student,
+    #     'xueli': '硕士',
+    #     'phone': '13888888888'
+    # }
+    # student_info_obj = models.StuInfo(**student_info)
+    # student_info_obj.save()
+    student = models.Student.objects.first()
+    print(student.name)
+    print(student.stuinfo.phone)
+    student_info = models.StuInfo.objects.first()
+    print(student_info.xueli)
+    print(student_info.sid.name)
     return render(request, 'athena_templates/demo.html')
 
 
