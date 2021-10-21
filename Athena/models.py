@@ -18,3 +18,10 @@ class Student(models.Model):
     age = models.IntegerField(default=24)
     sex = models.CharField(max_length=1, default='0')
     address = models.CharField(max_length=100, null=True)
+
+
+class StuInfo(models.Model):
+    sid = models.OneToOneField('Student', on_delete=models.CASCADE)
+    xueli = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20)
+

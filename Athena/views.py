@@ -109,15 +109,32 @@ def demo(request):
     # student = models.Student(**data)
     # student.save()
     # 查询数据
-    data = models.Student.objects.all()
-    print(data)
-    for s in data:
-        print(s.name)
-    data = models.Student.objects.get(pk=1)
-    print(data.name)
-    data = models.Student.objects.filter(sex='0')
-    for s in data:
-        print(s.sex)
+    # data = models.Student.objects.all()
+    # print(data)
+    # for s in data:
+    #     print(s.name)
+    # data = models.Student.objects.get(pk=1)
+    # print(data.name)
+    # data = models.Student.objects.filter(sex='0')
+    # for s in data:
+    #     print(s.sex)
+    # student_data = {
+    #     'name': '王五',
+    #     'age': 18,
+    #     'sex': '0',
+    #     'address': '山西'
+    # }
+    # # 一对一模型添加
+    # student = models.Student(**student_data)
+    # student.save()
+    student = models.Student.objects.get(pk=2)
+    student_info = {
+        'sid': student,
+        'xueli': '硕士',
+        'phone': '13888888888'
+    }
+    student_info_obj = models.StuInfo(**student_info)
+    student_info_obj.save()
     return render(request, 'athena_templates/demo.html')
 
 
