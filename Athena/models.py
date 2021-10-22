@@ -30,3 +30,8 @@ class StuInfo(models.Model):
 
 class BanJi(models.Model):
     name = models.CharField(max_length=20)
+
+
+class Teacher(models.Model):
+    name = models.CharField(max_length=20)
+    bid = models.ManyToManyField(to='BanJi')

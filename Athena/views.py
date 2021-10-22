@@ -148,15 +148,27 @@ def demo(request):
     # student = models.Student(name='赵六', bid=b_obj)
     # student.save()
     # 一对多关系 查询
-    b_obj = models.BanJi.objects.first()
-    print(b_obj.name)
-    print(b_obj.student_set.all())
-    for s in b_obj.student_set.all():
-        print(s.name)
-        print(s.stuinfo.xueli)
-        print(s.bid.name)
+    # b_obj = models.BanJi.objects.first()
+    # print(b_obj.name)
+    # print(b_obj.student_set.all())
+    # for s in b_obj.student_set.all():
+    #     print(s.name)
+    #     print(s.stuinfo.xueli)
+    #     print(s.bid.name)
+    # 添加多对多关系
+    # t1 = models.Teacher(name='王老师')
+    # t2 = models.Teacher(name='张老师')
+    # t1.save()
+    # t2.save()
+    # b_objects = models.BanJi.objects.all()
+    # t1.bid.set(b_objects)
+    # b_object = models.BanJi.objects.last()
+    # t2.bid.add(b_object)
     # s_obj = models.Student.objects.first()
     # print(s_obj.bid.name)
+    # 多对多查询
+    print(models.Teacher.objects.first().bid.all())
+    print(models.BanJi.objects.last().teacher_set.all())
     return render(request, 'athena_templates/demo.html')
 
 
