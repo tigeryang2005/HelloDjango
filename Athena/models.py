@@ -18,6 +18,8 @@ class Student(models.Model):
     age = models.IntegerField(default=24)
     sex = models.CharField(max_length=1, default='0')
     address = models.CharField(max_length=100, null=True)
+#     一对多关系
+    bid = models.ForeignKey(to='BanJi', on_delete=models.CASCADE, default=1)
 
 
 class StuInfo(models.Model):
@@ -25,3 +27,6 @@ class StuInfo(models.Model):
     xueli = models.CharField(max_length=20)
     phone = models.CharField(max_length=20)
 
+
+class BanJi(models.Model):
+    name = models.CharField(max_length=20)

@@ -135,12 +135,28 @@ def demo(request):
     # }
     # student_info_obj = models.StuInfo(**student_info)
     # student_info_obj.save()
-    student = models.Student.objects.first()
-    print(student.name)
-    print(student.stuinfo.phone)
-    student_info = models.StuInfo.objects.first()
-    print(student_info.xueli)
-    print(student_info.sid.name)
+    # student = models.Student.objects.first()
+    # print(student.name)
+    # print(student.stuinfo.phone)
+    # student_info = models.StuInfo.objects.first()
+    # print(student_info.xueli)
+    # print(student_info.sid.name)
+    # 一对多关系  存
+    # b_obj = models.BanJi(name='二班')
+    # b_obj.save()
+    #
+    # student = models.Student(name='赵六', bid=b_obj)
+    # student.save()
+    # 一对多关系 查询
+    b_obj = models.BanJi.objects.first()
+    print(b_obj.name)
+    print(b_obj.student_set.all())
+    for s in b_obj.student_set.all():
+        print(s.name)
+        print(s.stuinfo.xueli)
+        print(s.bid.name)
+    # s_obj = models.Student.objects.first()
+    # print(s_obj.bid.name)
     return render(request, 'athena_templates/demo.html')
 
 
