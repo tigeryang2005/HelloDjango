@@ -1,3 +1,4 @@
+.idea
 .git
 hellodjango/__pycache__/
 
@@ -131,4 +132,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+
+/Athena/migrations/
+/static/bootstrap-3.4.1-dist/
 /static/uploads/
