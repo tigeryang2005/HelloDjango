@@ -132,6 +132,12 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+/.idea/hellodjango.iml
+/.idea/.gitignore
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/vcs.xml
 
 /Athena/migrations/
 /static/bootstrap-3.4.1-dist/
