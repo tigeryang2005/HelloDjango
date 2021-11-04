@@ -1,15 +1,66 @@
+import json
+from django.forms.models import model_to_dict
+import requests
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.urls import reverse
+from django.core import serializers
 from . import models
 import time
 import os
 import traceback
 import logging
+
+from .models import Stock
+
 logger = logging.getLogger('log')
 
 
 # Create your views here.
+def stock_find(request):
+    # 获取数据
+    data = request.GET.dict()
+    data.pop('pageNumber')
+    data.pop('pageSize')
+    url = 'https://q.stock.sohu.com/hisHq'
+    response = requests.get(url=url, params=data)
+    content = json.loads(response.text)
+    logger.info('搜狐返回数据：' + response.text)
+    # 数据入库
+    key_list = []
+    for s in Stock._meta.fields:
+        key_list.append(s.name)
+    key_list = key_list[1:]
+    stock_list = []
+    for c in content:
+        if c['status'] == 0:
+            for h in c['hq']:
+                h.insert(0, c['code'])
+                stock_dict = dict(zip(key_list, h))
+                stock = Stock(**stock_dict)
+                stock_list.append(stock)
+    Stock.objects.bulk_create(stock_list, ignore_conflicts=True)
+    # 查询数据返回前端
+    start_date = data['start'][0:4] + '-' + data['start'][4:6] + '-' + data['start'][6:8]
+    end_date = data['end'][0:4] + '-' + data['end'][4:6] + '-' + data['end'][6:8]
+    stock_query_set = Stock.objects.filter(date__gte=start_date).filter(date__lte=end_date).all()
+    res_dict = {}
+    res_rows = []
+    stocks = serializers.serialize('json', stock_query_set)
+    stocks = json.loads(stocks)
+    for s in stocks:
+        s['fields']['id'] = s['pk']
+        res_rows.append(s['fields'])
+    res_dict['status'] = 'success'
+    res_dict['total'] = len(res_rows)
+    res_dict['rows'] = res_rows
+    res = json.dumps(res_dict)
+    logger.info('返回前端数据：' + res)
+    return HttpResponse(res)
+
+
+def stock_index(request):
+    return render(request, 'athena_templates/stock.html')
 
 
 def update_book(request):

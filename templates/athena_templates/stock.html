@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>股票查询页面</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/static/bootstrap-3.4.1-dist/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+    <script src="/static/bootstrap-3.4.1-dist/js/jquery-1.12.4.min.js"></script>
+    <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+    <script src="/static/bootstrap-3.4.1-dist/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+    <script src="/static/bootstrap-3.4.1-dist/js/bootstrap-table.min.js"></script>
+    <script src="/static/bootstrap-3.4.1-dist/js/bootstrap-table-zh-CN.min.js"></script>
+    <link href="/static/bootstrap-3.4.1-dist/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/bootstrap-3.4.1-dist/css/bootstrap-table.min.css" rel="stylesheet">
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+</head>
+<body>
+    <div class="container">
+        <div class="form-group col-md-3 col-md-offset-1">
+            <label for="start_date">开始日期</label>
+            <input type="date" name="start_date" class="form-control" id="start_date" placeholder="开始日期">
+        </div>
+        <div class="form-group col-md-3">
+            <label for="end_date">结束日期</label>
+            <input type="date" name="end_date" class="form-control" id="end_date" placeholder="结束日期">
+        </div>
+        <div class="form-group col-md-3">
+            <label for="code">代码</label>
+            <input type="text" name="code" class="form-control" id="code" placeholder="代码">
+        </div>
+        <button type="button" onclick="findBtnClick()" class="btn btn-success col-md-1 col-md-offset-1" name="find" id="find">查询</button>
+    </div>
+    <div class="container">
+        <div class="row" style="margin-top: 50px">
+            <div class="col-md-10 col-md-offset-1">
+                <div class="table-responsive">
+                    <!-- todo  选一个更好的table 能查询 小框添加 更新 然后刷新页面-->
+                    <table class="table table-bordered" id="stockTable" data-pagination="true" data-show-refresh="true" data-show-toggle="true" data-showColumns="true">
+                        <!--
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>代码</th>
+                                <th>交易日期</th>
+                                <th>开盘价</th>
+                                <th>收盘价</th>
+                                <th>涨跌</th>
+                                <th>涨跌幅</th>
+                                <th>最高价</th>
+                                <th>最低价</th>
+                                <th>成交量</th>
+                                <th>成交额</th>
+                                <th>换手率</th>
+                            </tr>
+                        </thead>
+                        -->
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+   /*
+    document.getElementById('find').onclick = function (){
+        let startDate = $('#start_date');
+        let startDateValue = document.getElementById('start_date').value;
+        if (startDateValue === "" || startDateValue ===undefined || startDateValue === null){
+            startDate.css('borderColor','red')
+        }else {
+            startDate.css('borderColor','')
+        }
+    }
+  */
+   let stockTable = $('#stockTable')
+   //initTable();
+  // function initTable() {
+       ////先销毁表格
+      // stockTable.bootstrapTable('destroy');
+   //}
+
+
+
+   //查询按钮事件
+    function findBtnClick() {
+        let startDate = $('#start_date');
+        let startDateValue = document.getElementById('start_date').value;
+        if (startDateValue === "" || startDateValue ===undefined || startDateValue === null){
+            startDate.css('borderColor','red');
+            return;
+        }else {
+            startDate.css('borderColor','');
+        }
+       stockTable.bootstrapTable("removeAll")
+        //初始化表格,动态从服务器加载数据
+        stockTable.bootstrapTable({
+            method: "get",
+            url: "http://127.0.0.1:8000/stock/find",
+            striped: true,  //表格显示条纹
+            pagination: true, //启动分页
+            pageSize: 5,  //每页显示的记录数
+            pageNumber: 1, //当前第几页
+            pageList: [5, 10, 15, 20, 25],  //记录数可选列表
+            search: true,  //是否启用查询
+            showColumns: true,  //显示下拉框勾选要显示的列
+            showRefresh: true,  //显示刷新按钮
+            sidePagination: "server", //表示服务端请求
+            //设置为undefined可以获取pageNumber，pageSize，searchText，sortName，sortOrder
+            //设置为limit可以获取limit, offset, search, sort, order
+            queryParamsType: "undefined",
+            queryParams: function queryParams(params) {   //设置查询参数
+                let param = {
+                    pageNumber: params.pageNumber,
+                    pageSize: params.pageSize,
+                    orderNum: $("#orderNum").val(),
+                    code: 'cn_' + $('#code').val(),
+                    start: $('#start_date').val().replace(/-/g,''),
+                    end: $('#end_date').val().replace(/-/g,'')
+                };
+                return param;
+            },
+            columns:[
+                {
+                    title: 'ID',
+                    field: 'id',
+                    align: 'center'
+                },
+                {
+                    title: '代码',
+                    field: 'code',
+                    align: 'center'
+                },
+                {
+                    title: '交易日期',
+                    field: 'date',
+                    align: 'center'
+                },
+                {
+                    title: '开盘价',
+                    field: 'open',
+                    align: 'center'
+                },
+                {
+                    title: '收盘价',
+                    field: 'close',
+                    align: 'center'
+                },
+                {
+                    title: '涨跌',
+                    field: 'zhang_die',
+                    align: 'center'
+                },
+                {
+                    title: '涨跌幅',
+                    field: 'zhang_die_fu',
+                    align: 'center'
+                },
+                {
+                    title: '最高价',
+                    field: 'highest',
+                    align: 'center'
+                },
+                {
+                    title: '最低价',
+                    field: 'lowest',
+                    align: 'center'
+                },
+                {
+                    title: '成交量',
+                    field: 'cheng_jiao_liang',
+                    align: 'center'
+                },
+                {
+                    title: '成交额',
+                    field: 'cheng_jiao_e',
+                    align: 'center'
+                },
+                {
+                    title: '换手率',
+                    field: 'huan_shou_lv',
+                    align: 'center'
+                },
+            ],
+            responseHandler: function (res) {
+                if (res.status ==='success'){
+                    return {
+                        "total": res.total,
+                        "rows": res.rows
+                    };
+                }else {
+                    return res;
+                }
+            }
+            //onLoadSuccess: function () {  //加载成功时执行
+                //alert("加载成功");
+           // },
+           // onLoadError: function () {  //加载失败时执行
+               // alert("加载数据失败");
+           // }
+        });
+    }
+</script>
+</html>

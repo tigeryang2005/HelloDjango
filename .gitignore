@@ -140,5 +140,5 @@ dmypy.json
 /.idea/vcs.xml
 
 /Athena/migrations/
-/static/bootstrap-3.4.1-dist/
+
 /static/uploads/
