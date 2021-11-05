@@ -67,26 +67,7 @@
     </div>
 </body>
 <script>
-   /*
-    document.getElementById('find').onclick = function (){
-        let startDate = $('#start_date');
-        let startDateValue = document.getElementById('start_date').value;
-        if (startDateValue === "" || startDateValue ===undefined || startDateValue === null){
-            startDate.css('borderColor','red')
-        }else {
-            startDate.css('borderColor','')
-        }
-    }
-  */
-   let stockTable = $('#stockTable')
-   //initTable();
-  // function initTable() {
-       ////先销毁表格
-      // stockTable.bootstrapTable('destroy');
-   //}
-
-
-
+   let stockTable = $('#stockTable');
    //查询按钮事件
     function findBtnClick() {
         let startDate = $('#start_date');
@@ -97,7 +78,7 @@
         }else {
             startDate.css('borderColor','');
         }
-       stockTable.bootstrapTable("destroy");
+        stockTable.bootstrapTable("destroy");
         //初始化表格,动态从服务器加载数据
         stockTable.bootstrapTable({
             method: "get",
@@ -113,7 +94,7 @@
             search: true,  //是否启用查询
             showColumns: true,  //显示下拉框勾选要显示的列
             showRefresh: true,  //显示刷新按钮
-            sidePagination: "server", //表示服务端请求
+            sidePagination: "server", //表示服务端请求 前端分页参数为client
             //设置为undefined可以获取pageNumber，pageSize，searchText，sortName，sortOrder
             //设置为limit可以获取limit, offset, search, sort, order
             queryParamsType: "undefined",
@@ -121,6 +102,8 @@
                 let param = {
                     pageNumber: params.pageNumber,
                     pageSize: params.pageSize,
+                    sortName: params.sortName,
+                    sortOrder: params.sortOrder,
                     orderNum: $("#orderNum").val(),
                     code: 'cn_' + $('#code').val(),
                     start: $('#start_date').val().replace(/-/g,''),
@@ -132,61 +115,73 @@
                 {
                     title: 'ID',
                     field: 'id',
+                    sortable: true,
                     align: 'center'
                 },
                 {
                     title: '代码',
                     field: 'code',
+                    sortable: true,
                     align: 'center'
                 },
                 {
                     title: '交易日期',
                     field: 'date',
+                    sortable: true,
                     align: 'center'
                 },
                 {
                     title: '开盘价',
                     field: 'open',
+                    sortable: true,
                     align: 'center'
                 },
                 {
                     title: '收盘价',
                     field: 'close',
+                    sortable: true,
                     align: 'center'
                 },
                 {
                     title: '涨跌',
                     field: 'zhang_die',
+                    sortable: true,
                     align: 'center'
                 },
                 {
                     title: '涨跌幅',
                     field: 'zhang_die_fu',
+                    sortable: true,
                     align: 'center'
                 },
                 {
                     title: '最高价',
                     field: 'highest',
+                    sortable: true,
                     align: 'center'
                 },
                 {
                     title: '最低价',
                     field: 'lowest',
+                    sortable: true,
                     align: 'center'
                 },
                 {
                     title: '成交量',
                     field: 'cheng_jiao_liang',
+                    sortable: true,
                     align: 'center'
                 },
                 {
                     title: '成交额',
                     field: 'cheng_jiao_e',
+                    sortable: true,
                     align: 'center'
                 },
                 {
                     title: '换手率',
                     field: 'huan_shou_lv',
+                    sortable: true,
                     align: 'center'
                 },
             ],

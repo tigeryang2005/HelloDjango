@@ -24,6 +24,12 @@ def stock_find(request):
     data = request.GET.dict()
     page_number = data.get('pageNumber', 1)
     page_size = data.get('pageSize')
+    sort_name = data.get('sortName', 'date')
+    sort_order = data.get('sortOrder', 'asc')
+    if sort_order == 'asc':
+        sort_order = ''
+    else:
+        sort_order = '-'
     data.pop('pageNumber')
     data.pop('pageSize')
     url = 'https://q.stock.sohu.com/hisHq'
@@ -47,7 +53,8 @@ def stock_find(request):
     # 查询数据返回前端
     start_date = data['start'][0:4] + '-' + data['start'][4:6] + '-' + data['start'][6:8]
     end_date = data['end'][0:4] + '-' + data['end'][4:6] + '-' + data['end'][6:8]
-    stock_query_set = Stock.objects.filter(date__gte=start_date).filter(date__lte=end_date).all()
+    stock_query_set = Stock.objects.filter(date__gte=start_date).filter(date__lte=end_date).all()\
+        .order_by(sort_order + sort_name)
     stock_query_set_page = Paginator(stock_query_set, page_size).page(page_number).object_list
     res_dict = {}
     res_rows = []
