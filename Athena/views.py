@@ -1,4 +1,6 @@
 import json
+
+from django.core.paginator import Paginator
 from django.forms.models import model_to_dict
 import requests
 from django.shortcuts import render, redirect
@@ -20,6 +22,8 @@ logger = logging.getLogger('log')
 def stock_find(request):
     # 获取数据
     data = request.GET.dict()
+    page_number = data.get('pageNumber', 1)
+    page_size = data.get('pageSize')
     data.pop('pageNumber')
     data.pop('pageSize')
     url = 'https://q.stock.sohu.com/hisHq'
@@ -44,15 +48,16 @@ def stock_find(request):
     start_date = data['start'][0:4] + '-' + data['start'][4:6] + '-' + data['start'][6:8]
     end_date = data['end'][0:4] + '-' + data['end'][4:6] + '-' + data['end'][6:8]
     stock_query_set = Stock.objects.filter(date__gte=start_date).filter(date__lte=end_date).all()
+    stock_query_set_page = Paginator(stock_query_set, page_size).page(page_number).object_list
     res_dict = {}
     res_rows = []
-    stocks = serializers.serialize('json', stock_query_set)
+    stocks = serializers.serialize('json', stock_query_set_page)
     stocks = json.loads(stocks)
     for s in stocks:
         s['fields']['id'] = s['pk']
         res_rows.append(s['fields'])
     res_dict['status'] = 'success'
-    res_dict['total'] = len(res_rows)
+    res_dict['total'] = len(stock_query_set)
     res_dict['rows'] = res_rows
     res = json.dumps(res_dict)
     logger.info('返回前端数据：' + res)
