@@ -19,6 +19,10 @@
     <link href="/static/bootstrap-3.4.1-dist/css/bootstrap-table.min.css" rel="stylesheet">
     <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
     <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <script src="/static/bootstrap-3.4.1-dist/js/FileSaver.min.js"></script>
+    <script src="/static/bootstrap-3.4.1-dist/js/xlsx.core.min.js"></script>
+    <script src="/static/bootstrap-3.4.1-dist/js/tableExport.min.js"></script>
+    <script src="/static/bootstrap-3.4.1-dist/js/bootstrap-table-export.js"></script>
 </head>
 <body>
     <div class="container">
@@ -42,24 +46,7 @@
                 <div class="table-responsive">
                     <!-- todo  选一个更好的table 能查询 小框添加 更新 然后刷新页面-->
                     <table class="table table-bordered" id="stockTable" data-pagination="true" data-show-refresh="true" data-show-toggle="true" data-showColumns="true">
-                        <!--
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>代码</th>
-                                <th>交易日期</th>
-                                <th>开盘价</th>
-                                <th>收盘价</th>
-                                <th>涨跌</th>
-                                <th>涨跌幅</th>
-                                <th>最高价</th>
-                                <th>最低价</th>
-                                <th>成交量</th>
-                                <th>成交额</th>
-                                <th>换手率</th>
-                            </tr>
-                        </thead>
-                        -->
+
                     </table>
                 </div>
             </div>
@@ -85,6 +72,16 @@
             url: "http://127.0.0.1:8000/stock/find",
             striped: true,  //表格显示条纹
             //sortName: "date",
+            showExport: true,
+            exportTypes: ['excel', 'xlsx'],
+            exportDataType: 'all',
+            exportOptions:{
+                //ignoreColumn: [0],  //忽略某一列的索引
+                fileName: '数据',  //文件名称设置
+                worksheetName: 'sheet1',  //表格工作区名称
+                tableName: '数据表',
+                //excelstyles: ['background-color', 'color', 'font-size', 'font-weight'],
+            },
             sortOrder: "asc",
             dataType: "json",
             pagination: true, //启动分页
