@@ -46,7 +46,9 @@
                 <div class="table-responsive">
                     <!-- todo  选一个更好的table 能查询 小框添加 更新 然后刷新页面-->
                     <table class="table table-bordered" id="stockTable" data-pagination="true" data-show-refresh="true" data-show-toggle="true" data-showColumns="true">
-
+                    <div id="toolbar" class="toolbar" style="visibility: hidden">
+                        <button type="button" class="btn btn-primary" id="addButton">增加</button>
+                    </div>
                     </table>
                 </div>
             </div>
@@ -67,7 +69,10 @@
         }
         stockTable.bootstrapTable("destroy");
         //初始化表格,动态从服务器加载数据
+        let toolBar = $('#toolbar');
+        toolBar.css('visibility', 'visible');
         stockTable.bootstrapTable({
+            toolbar: toolBar,
             method: "get",
             url: "http://127.0.0.1:8000/stock/find",
             striped: true,  //表格显示条纹
