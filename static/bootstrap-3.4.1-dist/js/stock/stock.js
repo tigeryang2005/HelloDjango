@@ -16,7 +16,7 @@
         stockTable.bootstrapTable({
             toolbar: toolBar,
             method: "get",
-            url: "http://127.0.0.1:8000/stock/find",
+            url: "/stock/find",
             striped: true,  //表格显示条纹
             //sortName: "date",
             showExport: true,
@@ -37,7 +37,7 @@
             pageList: [5, 10, 15, 20, 25],  //记录数可选列表
             search: true,  //是否启用查询
             showColumns: true,  //显示下拉框勾选要显示的列
-            showRefresh: true,  //显示刷新按钮
+            showRefresh: false,  //显示刷新按钮
             sidePagination: "client", //表示服务端请求 前端分页参数为client
             //设置为undefined可以获取pageNumber，pageSize，searchText，sortName，sortOrder
             //设置为limit可以获取limit, offset, search, sort, order
@@ -56,6 +56,9 @@
                 return param;
             },
             columns:[
+                {
+                  checkbox:true
+                },
                 {
                     title: 'ID',
                     field: 'id',
@@ -171,6 +174,33 @@
             },
             error: function (res) {
               alert(res)
+            }
+        })
+    }
+    //删除按钮点击事件
+    function delBtnClick() {
+        //采用的是前端分页模式，获取所有选中的列
+        let csrfToken = $("[name='csrfmiddlewaretoken']").val();
+        //获取选中的ID
+        let ids = $.map(stockTable.bootstrapTable('getSelections'), function (row) {
+                  return row.id
+                });
+        // 发送请求
+        $.ajax({
+            type: "delete",
+            url: "/stock/del",
+            beforeSend: function (request) {
+                request.setRequestHeader("Content-Type", "application/json");
+                request.setRequestHeader("X-CSRFToken", csrfToken);
+            },
+            data: JSON.stringify(ids),
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                stockTable.bootstrapTable('remove', {field: 'id', values: res});
+            },
+            error: function (res) {
+                alert(res)
             }
         })
     }

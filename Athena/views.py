@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.urls import reverse
 from django.core import serializers
+from django.db import transaction
 from . import models
 import time
 import os
@@ -19,6 +20,15 @@ logger = logging.getLogger('log')
 
 
 # Create your views here.
+@transaction.atomic
+def del_stock(request):
+    data = json.loads(request.body)
+    Stock.objects.filter(id__in=data).delete()
+    res = json.dumps(data)
+    return HttpResponse(res)
+
+
+@transaction.atomic
 def add_stock(request):
     data = json.loads(request.body)
     data.pop('csrfmiddlewaretoken')
@@ -29,6 +39,7 @@ def add_stock(request):
     return HttpResponse(json.dumps(res))
 
 
+@transaction.atomic
 def stock_find(request):
     # 获取数据
     data = request.GET.dict()
