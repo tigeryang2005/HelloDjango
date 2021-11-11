@@ -19,9 +19,20 @@ logger = logging.getLogger('log')
 
 
 # Create your views here.
+def add_stock(request):
+    data = json.loads(request.body)
+    data.pop('csrfmiddlewaretoken')
+    stock = models.Stock(**data)
+    stock.save()
+    data['id'] = stock.pk
+    res = [data]
+    return HttpResponse(json.dumps(res))
+
+
 def stock_find(request):
     # 获取数据
     data = request.GET.dict()
+    # 后端分页 暂时不用
     # page_number = data.get('pageNumber', 1)
     # page_size = data.get('pageSize')
     # sort_name = data.get('sortName', 'date')
