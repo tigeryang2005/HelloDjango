@@ -1,4 +1,21 @@
     let stockTable = $('#stockTable');
+    //增加按钮事件
+    function addBtnClick() {
+        $('#code').val('');
+        $('#date').val('');
+        $('#open').val('');
+        $('#close').val('');
+        $('#zhang_die').val('');
+        $('#zhang_die_fu').val('');
+        $('#highest').val('');
+        $('#lowest').val('');
+        $('#cheng_jiao_liang').val('');
+        $('#cheng_jiao_e').val('');
+        $('#huan_shou_lv').val('');
+        $('#addDataLabel').text('增加数据');
+        $('#saveBtn').text('增加');
+        $('#addData').modal('show');
+    }
     //查询按钮事件
     function findBtnClick() {
         let startDate = $('#start_date');
@@ -15,6 +32,7 @@
         toolBar.css('visibility', 'visible');
         stockTable.bootstrapTable({
             toolbar: toolBar,
+            uniqueId: 'id',
             method: "get",
             url: "/stock/find",
             striped: true,  //表格显示条纹
@@ -49,7 +67,7 @@
                     sortName: params.sortName,
                     sortOrder: params.sortOrder,
                     orderNum: $("#orderNum").val(),
-                    code: 'cn_' + $('#code').val(),
+                    code: 'cn_' + $('#findCode').val(),
                     start: $('#start_date').val().replace(/-/g,''),
                     end: $('#end_date').val().replace(/-/g,'')
                 };
@@ -152,28 +170,43 @@
     }
     //保存按钮点击事件
     function saveBtnClick() {
-        let url = $("#addStockForm").attr('action');
         let data = {};
         let jsonData = $('#addStockForm').serializeArray();
         for(let i = 0; i < jsonData.length; i++){
             data[jsonData[i]['name']] = jsonData[i]['value'];
         }
+        let url = '';
+        let type = '';
+        if ($('#saveBtn').text() === '更新'){
+            url = '/stock/update';
+            type = 'put';
+            let rows = stockTable.bootstrapTable('getSelections');
+            data['id'] = rows[0]['id'];
+        }else {
+            url = '/stock/add';
+            type = 'post';
+        }
+        let csrfToken = $("[name='csrfmiddlewaretoken']").val();
         $.ajax({
-            type: "post",
+            type: type,
             url: url,
             beforeSend: function (request) {
                 request.setRequestHeader("Content-Type", "application/json");
-                request.setRequestHeader("X-CSRFToken", data['csrfmiddlewaretoken']);
+                request.setRequestHeader("X-CSRFToken", csrfToken);
             },
             data: JSON.stringify(data),
             contentType: "application/json;charset=utf-8",
             dataType: "json",
             success: function (res) {
-                $(".modal").modal('hide');
-                stockTable.bootstrapTable('prepend', res);
+                $("#addData").modal('hide');
+                if (type === 'post')
+                    stockTable.bootstrapTable('prepend', res);
+                else
+                    stockTable.bootstrapTable('updateByUniqueId', {id: res.id, replace: true, row: res});
             },
             error: function (res) {
-              alert(res)
+                $("#addData").modal('hide');
+                alert(res);
             }
         })
     }
@@ -203,4 +236,32 @@
                 alert(res)
             }
         })
+    }
+    //更新按钮点击事件
+    function updateBtnClick() {
+    //获取选中的行，因为只编辑单行，不做批量，所以先判断是否多选或者没选中
+        let rows = stockTable.bootstrapTable('getSelections');
+        if (rows.length === 0){
+            alert('没有选中的行');
+            return 0;
+        }
+        if (rows.length > 1) {
+            alert('请只选中一行');
+            return 0;
+        }
+        let row = rows[0];
+        $('#code').val(row.code);
+        $('#date').val(row.date);
+        $('#open').val(row.open);
+        $('#close').val(row.close);
+        $('#zhang_die').val(row.zhang_die);
+        $('#zhang_die_fu').val(row.zhang_die_fu);
+        $('#highest').val(row.highest);
+        $('#lowest').val(row.lowest);
+        $('#cheng_jiao_liang').val(row.cheng_jiao_liang);
+        $('#cheng_jiao_e').val(row.cheng_jiao_e);
+        $('#huan_shou_lv').val(row.huan_shou_lv);
+        $('#addDataLabel').text('更新数据');
+        $('#saveBtn').text('更新');
+        $('#addData').modal('show');
     }

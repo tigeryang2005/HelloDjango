@@ -21,6 +21,15 @@ logger = logging.getLogger('log')
 
 # Create your views here.
 @transaction.atomic
+def update_stock(request):
+    data = json.loads(request.body)
+    stock = models.Stock(**data)
+    stock.save()
+    res = data
+    return HttpResponse(json.dumps(res))
+
+
+@transaction.atomic
 def del_stock(request):
     data = json.loads(request.body)
     Stock.objects.filter(id__in=data).delete()
@@ -31,7 +40,6 @@ def del_stock(request):
 @transaction.atomic
 def add_stock(request):
     data = json.loads(request.body)
-    data.pop('csrfmiddlewaretoken')
     stock = models.Stock(**data)
     stock.save()
     data['id'] = stock.pk
@@ -77,7 +85,8 @@ def stock_find(request):
     # 查询数据返回前端
     start_date = data['start'][0:4] + '-' + data['start'][4:6] + '-' + data['start'][6:8]
     end_date = data['end'][0:4] + '-' + data['end'][4:6] + '-' + data['end'][6:8]
-    stock_query_set = Stock.objects.filter(date__gte=start_date).filter(date__lte=end_date).all()
+    stock_query_set = Stock.objects.filter(date__gte=start_date).filter(date__lte=end_date)\
+        .filter(code__icontains=data['code']).all()
     # stock_query_set_page = Paginator(stock_query_set, page_size).page(page_number).object_list
     res_dict = {}
     res_rows = []

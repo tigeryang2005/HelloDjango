@@ -36,17 +36,19 @@
         </div>
         <div class="form-group col-md-3">
             <label for="code">代码</label>
-            <input type="number" name="code" class="form-control" id="code" placeholder="代码" required="required">
+            <input type="number" name="code" class="form-control" id="findCode" placeholder="代码" required="required">
         </div>
         <button type="button" onclick="findBtnClick()" class="btn btn-success col-md-1 col-md-offset-1" name="find" id="find">查询</button>
     </div>
+    {% csrf_token %}
     <div class="container">
         <div class="row" style="margin-top: 50px">
             <div class="col-md-10 col-md-offset-1">
                 <div class="table-responsive">
                     <div id="toolbar" class="toolbar" style="visibility: hidden">
-                        <button type="button" class="btn btn-primary" id="addButton" data-toggle="modal" data-target="#addData">增加</button>
+                        <button type="button" class="btn btn-primary" id="addButton" data-toggle="modal"  onclick="addBtnClick()">增加</button>
                         <button type="button" class="btn btn-primary" id="delButton" onclick="delBtnClick()">删除</button>
+                        <button type="button" class="btn btn-primary" id="editButton" onclick="updateBtnClick()">更新</button>
                     </div>
                     <table class="table table-bordered" id="stockTable" data-pagination="true" data-show-refresh="true" data-show-toggle="true" data-showColumns="true">
                     </table>
@@ -64,8 +66,7 @@
                     <h4 class="modal-title" id="addDataLabel">增加数据</h4>
                 </div>
                 <div class="modal-body">
-                    <form role="form" action="{% url 'add_stock' %}" id="addStockForm">
-                        {% csrf_token %}
+                    <form role="form" id="addStockForm">
                         <div class="form-group">
                             <label for="code">代码</label>
                             <input type="text" class="form-control" id="code" name="code" placeholder="请输入代码cn_开头" required="required">
@@ -88,11 +89,11 @@
                         </div>
                         <div class="form-group">
                             <label for="zhang_die_fu">涨跌幅%</label>
-                            <input type="text" class="form-control" id="zhang_die_fu" name="zhang_die_fu"placeholder="请输入涨跌幅" required="required">
+                            <input type="text" class="form-control" id="zhang_die_fu" name="zhang_die_fu" placeholder="请输入涨跌幅" required="required">
                         </div>
                         <div class="form-group">
                             <label for="highest">最高价</label>
-                            <input type="number" class="form-control" id="highest" name="highest"placeholder="最高价" required="required">
+                            <input type="number" class="form-control" id="highest" name="highest" placeholder="最高价" required="required">
                         </div>
                         <div class="form-group">
                             <label for="lowest">最低价</label>
@@ -100,7 +101,7 @@
                         </div>
                         <div class="form-group">
                             <label for="cheng_jiao_liang">成交量</label>
-                            <input type="number" class="form-control" id="cheng_jiao_liang" name="cheng_jiao_liang"placeholder="成交量" required="required">
+                            <input type="number" class="form-control" id="cheng_jiao_liang" name="cheng_jiao_liang" placeholder="成交量" required="required">
                         </div>
                         <div class="form-group">
                             <label for="cheng_jiao_e">成交额（万元）</label>
@@ -113,7 +114,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="saveBtnClick()">保存</button>
+                    <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveBtnClick()">保存</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
                 </div>
             </div>
