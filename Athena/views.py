@@ -8,6 +8,8 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.core import serializers
 from django.db import transaction
+
+from Athena.forms import StockForm
 from . import models
 import time
 import os
@@ -23,10 +25,22 @@ logger = logging.getLogger('log')
 @transaction.atomic
 def update_stock(request):
     data = json.loads(request.body)
-    stock = models.Stock(**data)
-    stock.save()
-    res = data
-    return HttpResponse(json.dumps(res))
+    stock = Stock.objects.get(pk=data.get('id'))
+    stock_form = StockForm(data, instance=stock)
+    if request.method == 'PUT' and data:
+        # 表单验证
+        if stock_form.is_valid():
+            res_data = data
+            stock = stock_form.save()
+            logger.info(serializers.serialize('json', [stock]))
+            res = {'msg': "success", 'data': res_data}
+        else:
+            res = {'msg': "failed", 'data': stock_form.errors}
+    else:
+        res = {'msg': "failed", 'data:': '请求方式应为PUT'}
+    res = json.dumps(res, ensure_ascii=False)
+    logger.info("更新后的数据为：" + res)
+    return HttpResponse(res)
 
 
 @transaction.atomic
@@ -34,17 +48,29 @@ def del_stock(request):
     data = json.loads(request.body)
     Stock.objects.filter(id__in=data).delete()
     res = json.dumps(data)
+    logger.info("删除的数据id为：" + res)
     return HttpResponse(res)
 
 
 @transaction.atomic
 def add_stock(request):
     data = json.loads(request.body)
-    stock = models.Stock(**data)
-    stock.save()
-    data['id'] = stock.pk
-    res = [data]
-    return HttpResponse(json.dumps(res))
+    stock_form = StockForm(data)
+    if request.method == 'POST' and data:
+        # 表单验证
+        if stock_form.is_valid():
+            res_data = [data]
+            stock = stock_form.save()
+            data['id'] = stock.id
+            logger.info(serializers.serialize('json', [stock]))
+            res = {'msg': "success", 'data': res_data}
+        else:
+            res = {'msg': "failed", 'data': stock_form.errors}
+    else:
+        res = {'msg': "failed", 'data:': '请求方式应为POST'}
+    res = json.dumps(res, ensure_ascii=False)
+    logger.info('增加后的数据为:' + res)
+    return HttpResponse(res)
 
 
 @transaction.atomic
@@ -95,7 +121,7 @@ def stock_find(request):
     for s in stocks:
         s['fields']['id'] = s['pk']
         res_rows.append(s['fields'])
-    res_dict['status'] = 'success'
+    res_dict['msg'] = 'success'
     res_dict['total'] = len(stock_query_set)
     res_dict['rows'] = res_rows
     res = json.dumps(res_dict)

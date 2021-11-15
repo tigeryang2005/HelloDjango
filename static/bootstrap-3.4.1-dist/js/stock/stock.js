@@ -151,7 +151,7 @@
                 },
             ],
             responseHandler: function (res) {
-                if (res.status ==='success'){
+                if (res.msg ==='success'){
                     return {
                         "total": res.total,
                         "rows": res.rows
@@ -198,11 +198,16 @@
             contentType: "application/json;charset=utf-8",
             dataType: "json",
             success: function (res) {
-                $("#addData").modal('hide');
-                if (type === 'post')
-                    stockTable.bootstrapTable('prepend', res);
-                else
-                    stockTable.bootstrapTable('updateByUniqueId', {id: res.id, replace: true, row: res});
+                if (res.msg === 'success'){
+                   $("#addData").modal('hide');
+                   if (type === 'post')
+                        stockTable.bootstrapTable('prepend', res.data);
+                   else
+                        stockTable.bootstrapTable('updateByUniqueId', {id: res.data.id, replace: true, row: res.data});
+                }else {
+                    alert(JSON.stringify(res.data));
+                }
+
             },
             error: function (res) {
                 $("#addData").modal('hide');
