@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.core import serializers
 from django.db import transaction
+from django.views.generic import TemplateView
 
 from Athena.forms import StockForm
 from . import models
@@ -129,8 +130,19 @@ def stock_find(request):
     return HttpResponse(res)
 
 
-def stock_index(request):
-    return render(request, 'athena_templates/stock.html')
+class StockIndexView(TemplateView):
+    template_name = 'athena_templates/stock.html'
+    http_method_names = ['get']
+
+    # def get_context_data(self, **kwargs):
+    #     # context = super().get_context_data(**kwargs)
+    #     context = {}
+    #     stocks = Stock.objects.all()[:10]
+    #     context['msg'] = 'success'
+    #     context['total'] = len(stocks)
+    #     context['rows'] = stocks
+    #     logger.info(context)
+    #     return context
 
 
 def update_book(request):
