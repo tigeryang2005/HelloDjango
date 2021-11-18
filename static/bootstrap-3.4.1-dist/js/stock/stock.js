@@ -1,7 +1,7 @@
 let endInitDate = new Date();
 let startInitDate = new Date(endInitDate.getFullYear(), endInitDate.getMonth(), endInitDate.getDate()-5);
-let startDate = $('#start_date');
 
+let startDate = $('#start_date');
 $.datetimepicker.setLocale('zh');
 startDate.datetimepicker({
     value: startInitDate.toLocaleDateString(),
@@ -12,6 +12,12 @@ startDate.datetimepicker({
 let endDate = $('#end_date');
 endDate.datetimepicker({
     value: endInitDate.toLocaleDateString(),
+    timepicker: false,
+    format: 'Y-m-d'
+});
+
+let date = $("#date");
+date.datetimepicker({
     timepicker: false,
     format: 'Y-m-d'
 });
