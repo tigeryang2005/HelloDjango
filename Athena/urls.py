@@ -1,14 +1,11 @@
 from django.urls import path, re_path
 
-from Athena.views import StockIndexView
+from Athena.views import StockIndexView, StockView
 from . import views
 
 urlpatterns = [
-     path('stock/update', views.update_stock, name='update_stock'),
-     path('stock/del', views.del_stock, name='del_stock'),
-     path('stock/add', views.add_stock, name='add_stock'),
-     path('stock/', StockIndexView.as_view(), name='stock_index'),
-     path('stock/find', views.stock_find, name='find_stock'),
+     path('stock/index', StockIndexView.as_view(), name='stock_index'),
+     path('stock/', StockView.as_view(), name='stock'),
      path('book/update/', views.update_book, name='update_book'),
      path('book/edit/', views.edit_book, name='edit_book'),
      re_path(r'book/del/(?P<book_id>\d+)/', views.del_book, name='del_book'),

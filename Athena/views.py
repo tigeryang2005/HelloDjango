@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.core import serializers
 from django.db import transaction
+from django.views import View
 from django.views.generic import TemplateView
 
 from Athena.forms import StockForm
@@ -23,111 +24,105 @@ logger = logging.getLogger('log')
 
 
 # Create your views here.
-@transaction.atomic
-def update_stock(request):
-    data = json.loads(request.body)
-    stock = Stock.objects.get(pk=data.get('id'))
-    stock_form = StockForm(data, instance=stock)
-    if request.method == 'PUT' and data:
-        # 表单验证
-        if stock_form.is_valid():
-            res_data = data
-            stock = stock_form.save()
-            logger.info(serializers.serialize('json', [stock]))
-            res = {'msg': "success", 'data': res_data}
+class StockView(View):
+    def get(self, request):
+        # 获取数据
+        data = request.GET.dict()
+        # 后端分页 暂时不用
+        # page_number = data.get('pageNumber', 1)
+        # page_size = data.get('pageSize')
+        # sort_name = data.get('sortName', 'date')
+        # sort_order = data.get('sortOrder', 'asc')
+        # if sort_order == 'asc':
+        #     sort_order = ''
+        # else:
+        #     sort_order = '-'
+        # if not data.get('pageNumber'):
+        #     data.pop('pageNumber')
+        # if not data.get('pageSize'):
+        #     data.pop('pageSize')
+        url = 'https://q.stock.sohu.com/hisHq'
+        response = requests.get(url=url, params=data)
+        content = json.loads(response.text)
+        logger.info('搜狐返回数据：' + response.text)
+        # 数据入库
+        key_list = []
+        for s in Stock._meta.fields:
+            key_list.append(s.name)
+        key_list = key_list[1:]
+        stock_list = []
+        for c in content:
+            if c['status'] == 0:
+                for h in c['hq']:
+                    h.insert(0, c['code'])
+                    stock_dict = dict(zip(key_list, h))
+                    stock = Stock(**stock_dict)
+                    stock_list.append(stock)
+        Stock.objects.bulk_create(stock_list, ignore_conflicts=True)
+        # 查询数据返回前端
+        start_date = data['start'][0:4] + '-' + data['start'][4:6] + '-' + data['start'][6:8]
+        end_date = data['end'][0:4] + '-' + data['end'][4:6] + '-' + data['end'][6:8]
+        stock_query_set = Stock.objects.filter(date__gte=start_date).filter(date__lte=end_date) \
+            .filter(code__icontains=data['code']).all()
+        # stock_query_set_page = Paginator(stock_query_set, page_size).page(page_number).object_list
+        res_dict = {}
+        res_rows = []
+        stocks = serializers.serialize('json', stock_query_set)
+        stocks = json.loads(stocks)
+        for s in stocks:
+            s['fields']['id'] = s['pk']
+            res_rows.append(s['fields'])
+        res_dict['msg'] = 'success'
+        res_dict['total'] = len(stock_query_set)
+        res_dict['rows'] = res_rows
+        res = json.dumps(res_dict)
+        logger.info('返回前端数据：' + res)
+        return HttpResponse(res)
+
+    def post(self, request):
+        data = json.loads(request.body)
+        stock_form = StockForm(data)
+        if request.method == 'POST' and data:
+            # 表单验证
+            if stock_form.is_valid():
+                res_data = [data]
+                stock = stock_form.save()
+                data['id'] = stock.id
+                logger.info(serializers.serialize('json', [stock]))
+                res = {'msg': "success", 'data': res_data}
+            else:
+                res = {'msg': "failed", 'data': stock_form.errors}
         else:
-            res = {'msg': "failed", 'data': stock_form.errors}
-    else:
-        res = {'msg': "failed", 'data:': '请求方式应为PUT'}
-    res = json.dumps(res, ensure_ascii=False)
-    logger.info("更新后的数据为：" + res)
-    return HttpResponse(res)
+            res = {'msg': "failed", 'data:': '请求方式应为POST'}
+        res = json.dumps(res, ensure_ascii=False)
+        logger.info('增加后的数据为:' + res)
+        return HttpResponse(res)
 
-
-@transaction.atomic
-def del_stock(request):
-    data = json.loads(request.body)
-    Stock.objects.filter(id__in=data).delete()
-    res = json.dumps(data)
-    logger.info("删除的数据id为：" + res)
-    return HttpResponse(res)
-
-
-@transaction.atomic
-def add_stock(request):
-    data = json.loads(request.body)
-    stock_form = StockForm(data)
-    if request.method == 'POST' and data:
-        # 表单验证
-        if stock_form.is_valid():
-            res_data = [data]
-            stock = stock_form.save()
-            data['id'] = stock.id
-            logger.info(serializers.serialize('json', [stock]))
-            res = {'msg': "success", 'data': res_data}
+    def put(self, request):
+        data = json.loads(request.body)
+        stock = Stock.objects.get(pk=data.get('id'))
+        stock_form = StockForm(data, instance=stock)
+        if request.method == 'PUT' and data:
+            # 表单验证
+            if stock_form.is_valid():
+                res_data = data
+                stock = stock_form.save()
+                logger.info(serializers.serialize('json', [stock]))
+                res = {'msg': "success", 'data': res_data}
+            else:
+                res = {'msg': "failed", 'data': stock_form.errors}
         else:
-            res = {'msg': "failed", 'data': stock_form.errors}
-    else:
-        res = {'msg': "failed", 'data:': '请求方式应为POST'}
-    res = json.dumps(res, ensure_ascii=False)
-    logger.info('增加后的数据为:' + res)
-    return HttpResponse(res)
+            res = {'msg': "failed", 'data:': '请求方式应为PUT'}
+        res = json.dumps(res, ensure_ascii=False)
+        logger.info("更新后的数据为：" + res)
+        return HttpResponse(res)
 
-
-@transaction.atomic
-def stock_find(request):
-    # 获取数据
-    data = request.GET.dict()
-    # 后端分页 暂时不用
-    # page_number = data.get('pageNumber', 1)
-    # page_size = data.get('pageSize')
-    # sort_name = data.get('sortName', 'date')
-    # sort_order = data.get('sortOrder', 'asc')
-    # if sort_order == 'asc':
-    #     sort_order = ''
-    # else:
-    #     sort_order = '-'
-    # if not data.get('pageNumber'):
-    #     data.pop('pageNumber')
-    # if not data.get('pageSize'):
-    #     data.pop('pageSize')
-    url = 'https://q.stock.sohu.com/hisHq'
-    response = requests.get(url=url, params=data)
-    content = json.loads(response.text)
-    logger.info('搜狐返回数据：' + response.text)
-    # 数据入库
-    key_list = []
-    for s in Stock._meta.fields:
-        key_list.append(s.name)
-    key_list = key_list[1:]
-    stock_list = []
-    for c in content:
-        if c['status'] == 0:
-            for h in c['hq']:
-                h.insert(0, c['code'])
-                stock_dict = dict(zip(key_list, h))
-                stock = Stock(**stock_dict)
-                stock_list.append(stock)
-    Stock.objects.bulk_create(stock_list, ignore_conflicts=True)
-    # 查询数据返回前端
-    start_date = data['start'][0:4] + '-' + data['start'][4:6] + '-' + data['start'][6:8]
-    end_date = data['end'][0:4] + '-' + data['end'][4:6] + '-' + data['end'][6:8]
-    stock_query_set = Stock.objects.filter(date__gte=start_date).filter(date__lte=end_date)\
-        .filter(code__icontains=data['code']).all()
-    # stock_query_set_page = Paginator(stock_query_set, page_size).page(page_number).object_list
-    res_dict = {}
-    res_rows = []
-    stocks = serializers.serialize('json', stock_query_set)
-    stocks = json.loads(stocks)
-    for s in stocks:
-        s['fields']['id'] = s['pk']
-        res_rows.append(s['fields'])
-    res_dict['msg'] = 'success'
-    res_dict['total'] = len(stock_query_set)
-    res_dict['rows'] = res_rows
-    res = json.dumps(res_dict)
-    logger.info('返回前端数据：' + res)
-    return HttpResponse(res)
+    def delete(self, request):
+        data = json.loads(request.body)
+        Stock.objects.filter(id__in=data).delete()
+        res = json.dumps(data)
+        logger.info("删除的数据id为：" + res)
+        return HttpResponse(res)
 
 
 class StockIndexView(TemplateView):

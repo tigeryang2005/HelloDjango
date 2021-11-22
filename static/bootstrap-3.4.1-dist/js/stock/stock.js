@@ -60,7 +60,7 @@ function findBtnClick() {
         toolbar: toolBar,
         uniqueId: 'id',
         method: "get",
-        url: "/stock/find",
+        url: "/stock/",
         striped: true,  //表格显示条纹
         //sortName: "date",
         showExport: true,
@@ -202,15 +202,13 @@ function saveBtnClick() {
     for(let i = 0; i < jsonData.length; i++){
         data[jsonData[i]['name']] = jsonData[i]['value'];
     }
-    let url = '';
+    let url = '/stock/';
     let type = '';
     if ($('#saveBtn').text() === '更新'){
-        url = '/stock/update';
         type = 'put';
         let rows = stockTable.bootstrapTable('getSelections');
         data['id'] = rows[0]['id'];
     }else {
-        url = '/stock/add';
         type = 'post';
     }
     let csrfToken = $("[name='csrfmiddlewaretoken']").val();
@@ -254,7 +252,7 @@ function delBtnClick() {
     // 发送请求
     $.ajax({
         type: "delete",
-        url: "/stock/del",
+        url: "/stock/",
         beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
             request.setRequestHeader("X-CSRFToken", csrfToken);
