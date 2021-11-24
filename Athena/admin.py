@@ -13,4 +13,5 @@ class BookAdmin(admin.ModelAdmin):
     # 详细的时间分层筛选
     date_hierarchy = 'pub_date'
 
+
 admin.site.register(models.Books, BookAdmin)

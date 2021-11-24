@@ -1,5 +1,5 @@
 import json
-
+import hashlib
 from django.core.paginator import Paginator
 from django.forms.models import model_to_dict
 import requests
@@ -10,8 +10,11 @@ from django.core import serializers
 from django.db import transaction
 from django.views import View
 from django.views.generic import TemplateView
+from django.contrib import auth
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 
-from Athena.forms import StockForm
+from Athena.forms import StockForm, UserForm, RegisterForm
 from . import models
 import time
 import os
@@ -24,6 +27,50 @@ logger = logging.getLogger('log')
 
 
 # Create your views here.
+class Login(View):
+    def get(self, request):
+        return render(request, 'athena_templates/login.html')
+
+    def post(self, request):
+        if request.session.get('is_login', None):
+            return redirect('stock')
+        login_form = UserForm(request.POST)
+        username = login_form.cleaned_data['username']
+        password = login_form.cleaned_data['password']
+        user = auth.authenticate(username=username, password=password)
+        if user is not None:
+            request.session['is_login'] = True
+            request.session['user_id'] = user.id
+            request.session['user_name'] = user.name
+            return render(request, 'athena_templates/stock.html')
+        else:
+            context = {'code': 200, 'msg': '用户名或密码错误'}
+            return render(request, 'athena_templates/login.html', context=context)
+
+
+class Register(View):
+    def get(self, request):
+        register_from = RegisterForm()
+        return render(request, 'athena_templates/register.html', locals())
+
+    def post(self, request):
+        register_from = RegisterForm(request.POST)
+        if register_from.is_valid():
+            username = register_from.cleaned_data['username']
+            password = register_from.cleaned_data['password']
+            confirm_password = register_from.cleaned_data['confirm_password']
+            user = User.objects.create_user(username=username, password=password, email='test@test.com')
+            user.save()
+            msg = '用户名:{username}已注册成功！'.format(username=user.username)
+            register_from = RegisterForm()
+            return render(request, 'athena_templates/register.html', locals())
+        else:
+            msg = register_from.errors
+            register_from = RegisterForm()
+            return render(request, 'athena_templates/register.html', locals())
+
+
+# @login_required
 class StockView(View):
     def get(self, request):
         # 获取数据
