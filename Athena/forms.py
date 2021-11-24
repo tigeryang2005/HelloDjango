@@ -11,6 +11,19 @@ class StockForm(ModelForm):
 
 
 class UserForm(forms.Form):
+    username = forms.CharField(label="用户名", max_length=128)
+    password = forms.CharField(label="密码", max_length=256)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get('username')
+        password = cleaned_data.get('password')
+        if not username:
+            msg = '用户名不能为空'
+            self.add_error('username', msg)
+        if not password:
+            msg = '密码不能为空'
+            self.add_error('password', msg)
 
     class Meta:
         model = User

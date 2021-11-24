@@ -1,12 +1,14 @@
+from django.contrib.auth.decorators import login_required
 from django.urls import path, re_path
 
-from Athena.views import StockIndexView, StockView, Login, Register
+from Athena.views import StockIndexView, StockView, Login, Register, Logout
 from . import views
 
 urlpatterns = [
-     path('login', Login.as_view(), name='login'),
-     path('register', Register.as_view(), name='register'),
-     path('stock/index', StockIndexView.as_view(), name='stock_index'),
+     path('accounts/login/', Login.as_view(), name='login'),
+     path('register/', Register.as_view(), name='register'),
+     path('logout/', Logout.as_view(), name='logout'),
+     path('stock/index/', StockIndexView.as_view(), name='stock_index'),
      path('stock/', StockView.as_view(), name='stock'),
      path('book/update/', views.update_book, name='update_book'),
      path('book/edit/', views.edit_book, name='edit_book'),

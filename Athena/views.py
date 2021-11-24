@@ -1,5 +1,4 @@
 import json
-import hashlib
 from django.core.paginator import Paginator
 from django.forms.models import model_to_dict
 import requests
@@ -7,13 +6,13 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.urls import reverse
 from django.core import serializers
-from django.db import transaction
 from django.views import View
 from django.views.generic import TemplateView
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-
+from django.contrib.auth import login, logout
 from Athena.forms import StockForm, UserForm, RegisterForm
 from . import models
 import time
@@ -27,25 +26,50 @@ logger = logging.getLogger('log')
 
 
 # Create your views here.
+class Logout(View):
+    def get(self, request):
+        if not request.session.get('is_login', None):
+            return redirect('login')
+        # request.session.flush()
+        # flush会一次性清空session中所有内容，可以使用下面的方法
+        del request.session['is_login']
+        del request.session['user_id']
+        del request.session['user_name']
+        logout(request)
+        return redirect('login')
+
+
 class Login(View):
     def get(self, request):
-        return render(request, 'athena_templates/login.html')
+        next_url = request.GET.get('next', '')
+        context = {'next_url': next_url}
+        return render(request, 'athena_templates/login.html', context=context)
 
     def post(self, request):
         if request.session.get('is_login', None):
-            return redirect('stock')
+            return redirect('stock_index')
         login_form = UserForm(request.POST)
-        username = login_form.cleaned_data['username']
-        password = login_form.cleaned_data['password']
-        user = auth.authenticate(username=username, password=password)
-        if user is not None:
-            request.session['is_login'] = True
-            request.session['user_id'] = user.id
-            request.session['user_name'] = user.name
-            return render(request, 'athena_templates/stock.html')
+        if login_form.is_valid():
+            username = login_form.cleaned_data['username']
+            password = login_form.cleaned_data['password']
+            user = auth.authenticate(username=username, password=password)
+            login(request, user)
+            path = request.POST.get('next_url', '')
+            if user is not None:
+                request.session['is_login'] = True
+                request.session['user_id'] = user.id
+                request.session['user_name'] = user.username
+                if not path:
+                    path = 'list_book'
+                    return redirect(reverse(path))
+                else:
+                    return redirect(path)
+            else:
+                msg = '用户名或密码错误'
+                return render(request, 'athena_templates/login.html', locals())
         else:
-            context = {'code': 200, 'msg': '用户名或密码错误'}
-            return render(request, 'athena_templates/login.html', context=context)
+            msg = login_form.errors
+            return render(request, 'athena_templates/login.html', locals())
 
 
 class Register(View):
@@ -70,7 +94,6 @@ class Register(View):
             return render(request, 'athena_templates/register.html', locals())
 
 
-# @login_required
 class StockView(View):
     def get(self, request):
         # 获取数据
@@ -172,7 +195,7 @@ class StockView(View):
         return HttpResponse(res)
 
 
-class StockIndexView(TemplateView):
+class StockIndexView(LoginRequiredMixin, TemplateView):
     template_name = 'athena_templates/stock.html'
     http_method_names = ['get']
 
