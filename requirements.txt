@@ -1,3 +1,4 @@
+captcha
 asgiref==3.4.1
 Django==3.2.7
 gevent==21.8.0

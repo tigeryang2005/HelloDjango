@@ -42,7 +42,8 @@ class Logout(View):
 class Login(View):
     def get(self, request):
         next_url = request.GET.get('next', '')
-        context = {'next_url': next_url}
+        user_form = UserForm()
+        context = {'next_url': next_url, 'user_form': user_form}
         return render(request, 'athena_templates/login.html', context=context)
 
     def post(self, request):
@@ -53,22 +54,24 @@ class Login(View):
             username = login_form.cleaned_data['username']
             password = login_form.cleaned_data['password']
             user = auth.authenticate(username=username, password=password)
-            login(request, user)
             path = request.POST.get('next_url', '')
             if user is not None:
+                login(request, user)
                 request.session['is_login'] = True
                 request.session['user_id'] = user.id
                 request.session['user_name'] = user.username
                 if not path:
-                    path = 'list_book'
+                    path = 'stock_index'
                     return redirect(reverse(path))
                 else:
                     return redirect(path)
             else:
                 msg = '用户名或密码错误'
+                user_form = UserForm()
                 return render(request, 'athena_templates/login.html', locals())
         else:
             msg = login_form.errors
+            user_form = UserForm()
             return render(request, 'athena_templates/login.html', locals())
 
 

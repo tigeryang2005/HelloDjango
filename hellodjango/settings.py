@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'captcha',
     'Athena',
 ]
 
@@ -201,3 +202,39 @@ LOGGING = {
         },
     }
 }
+
+# CAPTCHA验证码配置
+# 图片大小
+CAPTCHA_IMAGE_SIZE = (80, 45)
+# 字符个数
+CAPTCHA_LENGTH = 4
+# 超时时间（分）
+CAPTCHA_TIMEOUT = 1
+# 输出格式： 输入框 验证码图片 隐藏域
+CAPTCHA_OUTPUT_FORMAT = '%(text_field)s %(image)s %(hidden_field)s'
+CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_null',
+                           'captcha.helpers.noise_arcs',   # 线
+                           'captcha.helpers.noise_dots',   # 点
+                           )
+# 随机字符验证码
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'
+# captcha的输出样式由字符串：%(text_field)s %(image)s %(hidden_field)s，其中：
+#
+# %(text_field)s表示用户输入验证码的输入框
+# %(image)s验证码图片
+# %(hidden_field)s隐藏域
+# captcha有三种基本验证码样式：
+#
+# 随机字符
+# CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'​
+#
+#
+# 2.简单数学计算
+#
+# CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
+#
+#
+# 3.单词
+#
+# CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.word_challenge'
+

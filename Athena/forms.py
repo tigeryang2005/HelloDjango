@@ -2,6 +2,7 @@ from django.forms import ModelForm
 from django import forms
 from Athena.models import Stock
 from django.contrib.auth.models import User
+from captcha.fields import CaptchaField
 
 
 class StockForm(ModelForm):
@@ -13,6 +14,7 @@ class StockForm(ModelForm):
 class UserForm(forms.Form):
     username = forms.CharField(label="用户名", max_length=128)
     password = forms.CharField(label="密码", max_length=256)
+    captcha = CaptchaField()  # 验证码字段
 
     def clean(self):
         cleaned_data = super().clean()
