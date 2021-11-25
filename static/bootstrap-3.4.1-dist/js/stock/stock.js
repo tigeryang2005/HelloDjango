@@ -243,12 +243,16 @@ function saveBtnClick() {
 
 //删除按钮点击事件
 function delBtnClick() {
-    //采用的是前端分页模式，获取所有选中的列
-    let csrfToken = $("[name='csrfmiddlewaretoken']").val();
     //获取选中的ID
     let ids = $.map(stockTable.bootstrapTable('getSelections'), function (row) {
               return row.id
             });
+    if (ids.length === 0){
+        alert('没有选中的行');
+        return 0;
+    }
+    //采用的是前端分页模式，获取所有选中的列
+    let csrfToken = $("[name='csrfmiddlewaretoken']").val();
     // 发送请求
     $.ajax({
         type: "delete",
