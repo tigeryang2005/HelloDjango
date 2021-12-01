@@ -97,7 +97,7 @@ class Register(View):
             return render(request, 'athena_templates/register.html', locals())
 
 
-class StockView(View):
+class StockView(LoginRequiredMixin, View):
     def get(self, request):
         # 获取数据
         data = request.GET.dict()
