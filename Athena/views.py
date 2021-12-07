@@ -1,77 +1,57 @@
 import json
-from django.contrib.auth.models import User, Group
-from rest_framework import viewsets, status
-from rest_framework.renderers import JSONRenderer
-from rest_framework.parsers import JSONParser
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from Athena.serializers import UserSerializer, GroupSerializer
+import logging
+import os
+import time
+import traceback
+
 import requests
-from django.shortcuts import render, redirect
-from django.http import HttpResponse, Http404
-from django.urls import reverse
+from django.contrib import auth
+from django.contrib.auth import login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import Group
+from django.contrib.auth.models import User
 from django.core import serializers
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView
-from django.contrib import auth
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
-from django.contrib.auth import login, logout
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework import viewsets, mixins, generics
+
 from Athena.forms import StockForm, UserForm, RegisterForm
 from Athena.serializers import StockSerializer
+from Athena.serializers import UserSerializer, GroupSerializer
 from . import models
-import time
-import os
-import traceback
-import logging
-
 from .models import Stock
 
 logger = logging.getLogger('log')
 
 
 # Create your views here.
-class StockList(APIView):
-    def get(self, request, format=None):
-        stocks = Stock.objects.all()
-        stocks_serializer = StockSerializer(stocks, many=True)
-        return Response(stocks_serializer.data)
+class StockList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+    queryset = Stock.objects.all()
+    serializer_class = StockSerializer
 
-    def post(self, request, format=None):
-        stock_serializer = StockSerializer(data=request.data)
-        if stock_serializer.is_valid():
-            stock_serializer.save()
-            return Response(stock_serializer.data, status=status.HTTP_201_CREATED)
-        return Response(stock_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
 
-class StockDetail(APIView):
-    def get_object(self, pk):
-        try:
-            return Stock.objects.get(pk=pk)
-        except Stock.DoesNotExist:
-            raise Http404
+class StockDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin,
+                  generics.GenericAPIView):
+    queryset = Stock.objects.all()
+    serializer_class = StockSerializer
 
-    def get(self, request, pk, format=None):
-        stock = self.get_object(pk)
-        stock_serializer = StockSerializer(stock)
-        return Response(stock_serializer.data)
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
 
-    def put(self, request, pk, format=None):
-        stock = self.get_object(pk)
-        stock_serializer = StockSerializer(stock, data=request.data)
-        if stock_serializer.is_valid():
-            stock_serializer.save()
-            return Response(stock_serializer.data)
-        return Response(stock_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
-    def delete(self, request, pk, format=None):
-        stock = self.get_object(pk)
-        stock.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
 
 class UserViewSet(viewsets.ModelViewSet):
