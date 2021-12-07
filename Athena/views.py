@@ -5,10 +5,11 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from Athena.serializers import UserSerializer, GroupSerializer
 import requests
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.urls import reverse
 from django.core import serializers
 from django.views import View
@@ -33,51 +34,89 @@ logger = logging.getLogger('log')
 
 
 # Create your views here.
-class JSONResponse(HttpResponse):
-    def __init__(self, data, **kwargs):
-        content = JSONRenderer().render(data)
-        kwargs['content_type'] = 'application/json'
-        super(JSONResponse, self).__init__(content, **kwargs)
-
-
-@csrf_exempt
-@api_view(['GET', 'POST'])
-def stock_list(request):
-    if request.method == 'GET':
+class StockList(APIView):
+    def get(self, request, format=None):
         stocks = Stock.objects.all()
         stocks_serializer = StockSerializer(stocks, many=True)
         return Response(stocks_serializer.data)
-    elif request.method == 'POST':
-        # 待验证 应该只能单个添加，是否可以批量添加
-        data = JSONParser().parse(request)
-        stock_serializer = StockSerializer(data=data)
+
+    def post(self, request, format=None):
+        stock_serializer = StockSerializer(data=request.data)
         if stock_serializer.is_valid():
             stock_serializer.save()
-            return JSONResponse(stock_serializer.data, status=status.HTTP_201_CREATED)
+            return Response(stock_serializer.data, status=status.HTTP_201_CREATED)
         return Response(stock_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@csrf_exempt
-@api_view(['GET', 'PUT', "DELETE"])
-def stock_detail(request, pk):
-    try:
-        stock = Stock.objects.get(pk=pk)
-    except Stock.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+class StockDetail(APIView):
+    def get_object(self, pk):
+        try:
+            return Stock.objects.get(pk=pk)
+        except Stock.DoesNotExist:
+            raise Http404
 
-    if request.method == 'GET':
+    def get(self, request, pk, format=None):
+        stock = self.get_object(pk)
         stock_serializer = StockSerializer(stock)
         return Response(stock_serializer.data)
-    elif request.method == 'PUT':
-        data = JSONParser().parse(request)
-        stock_serializer = StockSerializer(stock, data=data)
+
+    def put(self, request, pk, format=None):
+        stock = self.get_object(pk)
+        stock_serializer = StockSerializer(stock, data=request.data)
         if stock_serializer.is_valid():
             stock_serializer.save()
-            return JSONResponse(stock_serializer.data)
+            return Response(stock_serializer.data)
         return Response(stock_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'DELETE':
+
+    def delete(self, request, pk, format=None):
+        stock = self.get_object(pk)
         stock.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+# class JSONResponse(HttpResponse):
+#     def __init__(self, data, **kwargs):
+#         content = JSONRenderer().render(data)
+#         kwargs['content_type'] = 'application/json'
+#         super(JSONResponse, self).__init__(content, **kwargs)
+
+
+# @csrf_exempt
+# @api_view(['GET', 'POST'])
+# def stock_list(request):
+#     if request.method == 'GET':
+#         stocks = Stock.objects.all()
+#         stocks_serializer = StockSerializer(stocks, many=True)
+#         return Response(stocks_serializer.data)
+#     elif request.method == 'POST':
+#         # 待验证 应该只能单个添加，是否可以批量添加
+#         stock_serializer = StockSerializer(data=request.data)
+#         if stock_serializer.is_valid():
+#             stock_serializer.save()
+#             return Response(stock_serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(stock_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# @csrf_exempt
+# @api_view(['GET', 'PUT', "DELETE"])
+# def stock_detail(request, pk):
+#     try:
+#         stock = Stock.objects.get(pk=pk)
+#     except Stock.DoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+#
+#     if request.method == 'GET':
+#         stock_serializer = StockSerializer(stock)
+#         return Response(stock_serializer.data)
+#     elif request.method == 'PUT':
+#         data = JSONParser().parse(request)
+#         stock_serializer = StockSerializer(stock, data=data)
+#         if stock_serializer.is_valid():
+#             stock_serializer.save()
+#             return Response(stock_serializer.data)
+#         return Response(stock_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     elif request.method == 'DELETE':
+#         stock.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UserViewSet(viewsets.ModelViewSet):
