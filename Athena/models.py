@@ -19,6 +19,7 @@ class Stock(models.Model):
     class Meta:
         unique_together = ['code', 'date']
         indexes = [models.Index(fields=['code', 'date']), ]
+        ordering = ('-date', 'code',)
 
 
 class Books(models.Model):
