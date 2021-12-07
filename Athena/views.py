@@ -1,8 +1,10 @@
 import json
 from django.contrib.auth.models import User, Group
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from Athena.serializers import UserSerializer, GroupSerializer
 import requests
 from django.shortcuts import render, redirect
@@ -39,41 +41,43 @@ class JSONResponse(HttpResponse):
 
 
 @csrf_exempt
+@api_view(['GET', 'POST'])
 def stock_list(request):
     if request.method == 'GET':
         stocks = Stock.objects.all()
         stocks_serializer = StockSerializer(stocks, many=True)
-        return JSONResponse(stocks_serializer.data)
+        return Response(stocks_serializer.data)
     elif request.method == 'POST':
         # 待验证 应该只能单个添加，是否可以批量添加
         data = JSONParser().parse(request)
         stock_serializer = StockSerializer(data=data)
         if stock_serializer.is_valid():
             stock_serializer.save()
-            return JSONResponse(stock_serializer.data, status=201)
-        return JSONResponse(stock_serializer.errors, status=400)
+            return JSONResponse(stock_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(stock_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @csrf_exempt
+@api_view(['GET', 'PUT', "DELETE"])
 def stock_detail(request, pk):
     try:
         stock = Stock.objects.get(pk=pk)
     except Stock.DoesNotExist:
-        return HttpResponse(status=404)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
         stock_serializer = StockSerializer(stock)
-        return JSONResponse(stock_serializer.data)
+        return Response(stock_serializer.data)
     elif request.method == 'PUT':
         data = JSONParser().parse(request)
         stock_serializer = StockSerializer(stock, data=data)
         if stock_serializer.is_valid():
             stock_serializer.save()
             return JSONResponse(stock_serializer.data)
-        return JSONResponse(stock_serializer.errors, status=400)
+        return Response(stock_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
         stock.delete()
-        return HttpResponse(status=204)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UserViewSet(viewsets.ModelViewSet):
