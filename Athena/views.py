@@ -73,51 +73,6 @@ class StockDetail(APIView):
         stock.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-# class JSONResponse(HttpResponse):
-#     def __init__(self, data, **kwargs):
-#         content = JSONRenderer().render(data)
-#         kwargs['content_type'] = 'application/json'
-#         super(JSONResponse, self).__init__(content, **kwargs)
-
-
-# @csrf_exempt
-# @api_view(['GET', 'POST'])
-# def stock_list(request):
-#     if request.method == 'GET':
-#         stocks = Stock.objects.all()
-#         stocks_serializer = StockSerializer(stocks, many=True)
-#         return Response(stocks_serializer.data)
-#     elif request.method == 'POST':
-#         # 待验证 应该只能单个添加，是否可以批量添加
-#         stock_serializer = StockSerializer(data=request.data)
-#         if stock_serializer.is_valid():
-#             stock_serializer.save()
-#             return Response(stock_serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(stock_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# @csrf_exempt
-# @api_view(['GET', 'PUT', "DELETE"])
-# def stock_detail(request, pk):
-#     try:
-#         stock = Stock.objects.get(pk=pk)
-#     except Stock.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-#
-#     if request.method == 'GET':
-#         stock_serializer = StockSerializer(stock)
-#         return Response(stock_serializer.data)
-#     elif request.method == 'PUT':
-#         data = JSONParser().parse(request)
-#         stock_serializer = StockSerializer(stock, data=data)
-#         if stock_serializer.is_valid():
-#             stock_serializer.save()
-#             return Response(stock_serializer.data)
-#         return Response(stock_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#     elif request.method == 'DELETE':
-#         stock.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class UserViewSet(viewsets.ModelViewSet):
     """
