@@ -1,6 +1,7 @@
 import json
-from django.core.paginator import Paginator
-from django.forms.models import model_to_dict
+from django.contrib.auth.models import User, Group
+from rest_framework import viewsets
+from Athena.serializers import UserSerializer, GroupSerializer
 import requests
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
@@ -26,6 +27,23 @@ logger = logging.getLogger('log')
 
 
 # Create your views here.
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    允许用户查看或编辑的API路径。
+    """
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = UserSerializer
+    # permission_classes = [permission.IsAuthenticated]
+
+
+class GroupViewSet(viewsets.ModelViewSet):
+    """
+    允许组查看或编辑的API路径。
+    """
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+
+
 class Logout(View):
     def get(self, request):
         if not request.session.get('is_login', None):

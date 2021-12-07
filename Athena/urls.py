@@ -1,10 +1,19 @@
 from django.contrib.auth.decorators import login_required
 from django.urls import path, re_path
-
+from django.conf.urls import url, include
+from rest_framework import routers
 from Athena.views import StockIndexView, StockView, Login, Register, Logout
 from . import views
 
+router = routers.DefaultRouter()
+router.register(r'users', views.UserViewSet)
+router.register(r'groups', views.GroupViewSet)
+
+# 使用自动URL路由连接我们的API。
+# 另外，我们还包括支持浏览器浏览API的登录URL。
 urlpatterns = [
+     url(r'^', include(router.urls)),
+     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
      path('accounts/login/', Login.as_view(), name='login'),
      path('register/', Register.as_view(), name='register'),
      path('logout/', Logout.as_view(), name='logout'),
