@@ -16,7 +16,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView
-from rest_framework import viewsets, mixins, generics
+from rest_framework import viewsets, generics
 
 from Athena.forms import StockForm, UserForm, RegisterForm
 from Athena.serializers import StockSerializer
@@ -28,30 +28,14 @@ logger = logging.getLogger('log')
 
 
 # Create your views here.
-class StockList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+class StockList(generics.ListCreateAPIView):
     queryset = Stock.objects.all()
     serializer_class = StockSerializer
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
-
-
-class StockDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin,
-                  generics.GenericAPIView):
+class StockDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Stock.objects.all()
     serializer_class = StockSerializer
-
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
 
 
 class UserViewSet(viewsets.ModelViewSet):
