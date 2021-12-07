@@ -4,7 +4,7 @@ from rest_framework import serializers
 from Athena.models import Stock
 
 
-class StockSerializer(serializers.Serializer):
+class StockSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stock
         # fields = ('id', 'code')
