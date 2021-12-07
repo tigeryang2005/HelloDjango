@@ -1,6 +1,8 @@
 import json
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
+from rest_framework.renderers import JSONRenderer
+from rest_framework.parsers import JSONParser
 from Athena.serializers import UserSerializer, GroupSerializer
 import requests
 from django.shortcuts import render, redirect
@@ -14,7 +16,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout
+from django.views.decorators.csrf import csrf_exempt
 from Athena.forms import StockForm, UserForm, RegisterForm
+from Athena.serializers import StockSerializer
 from . import models
 import time
 import os
@@ -27,6 +31,51 @@ logger = logging.getLogger('log')
 
 
 # Create your views here.
+class JSONResponse(HttpResponse):
+    def __init__(self, data, **kwargs):
+        content = JSONRenderer().render(data)
+        kwargs['content_type'] = 'application/json'
+        super(JSONResponse, self).__init__(content, **kwargs)
+
+
+@csrf_exempt
+def stock_list(request):
+    if request.method == 'GET':
+        stocks = Stock.objects.all()
+        stocks_serializer = StockSerializer(stocks, many=True)
+        return JSONResponse(stocks_serializer.data)
+    elif request.method == 'POST':
+        # 待验证 应该只能单个添加，是否可以批量添加
+        data = JSONParser().parse(request)
+        stock_serializer = StockSerializer(data=data)
+        if stock_serializer.is_valid():
+            stock_serializer.save()
+            return JSONResponse(stock_serializer.data, status=201)
+        return JSONResponse(stock_serializer.errors, status=400)
+
+
+@csrf_exempt
+def stock_detail(request, pk):
+    try:
+        stock = Stock.objects.get(pk=pk)
+    except Stock.DoesNotExist:
+        return HttpResponse(status=404)
+
+    if request.method == 'GET':
+        stock_serializer = StockSerializer(stock)
+        return JSONResponse(stock_serializer.data)
+    elif request.method == 'PUT':
+        data = JSONParser().parse(request)
+        stock_serializer = StockSerializer(stock, data=data)
+        if stock_serializer.is_valid():
+            stock_serializer.save()
+            return JSONResponse(stock_serializer.data)
+        return JSONResponse(stock_serializer.errors, status=400)
+    elif request.method == 'DELETE':
+        stock.delete()
+        return HttpResponse(status=204)
+
+
 class UserViewSet(viewsets.ModelViewSet):
     """
     允许用户查看或编辑的API路径。

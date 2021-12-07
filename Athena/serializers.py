@@ -7,7 +7,8 @@ from Athena.models import Stock
 class StockSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stock
-        # fields = ('id', 'code')
+        # fields = ('id', 'code',)
+        fields = '__all__'
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
