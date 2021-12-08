@@ -16,7 +16,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView
-from rest_framework import viewsets, generics
+from rest_framework import viewsets
 
 from Athena.forms import StockForm, UserForm, RegisterForm
 from Athena.serializers import StockSerializer
@@ -28,12 +28,11 @@ logger = logging.getLogger('log')
 
 
 # Create your views here.
-class StockList(generics.ListCreateAPIView):
-    queryset = Stock.objects.all()
-    serializer_class = StockSerializer
+class StockViewSet(viewsets.ModelViewSet):
+    """
+        此视图自动提供`list`，`create`，`retrieve`，`update`和`destroy`操作。
 
-
-class StockDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
     queryset = Stock.objects.all()
     serializer_class = StockSerializer
 

@@ -1,20 +1,33 @@
-from django.contrib.auth.decorators import login_required
-from django.urls import path, re_path
 from django.conf.urls import url, include
+from django.urls import path, re_path
 from rest_framework import routers
-from rest_framework.urlpatterns import format_suffix_patterns
-from Athena.views import StockIndexView, StockView, Login, Register, Logout
+
+from Athena.views import StockIndexView, StockView, Login, Register, Logout, StockViewSet
 from . import views
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
+# 用router 没有api的版本号
+# router.register(r'stock', views.StockViewSet)
+
+stock_list = StockViewSet.as_view({
+     'get': 'list',
+     'post': 'create'
+})
+
+stock_detail = StockViewSet.as_view({
+     'get': 'retrieve',
+     'put': 'update',
+     'patch': 'partial_update',
+     'delete': 'destroy'
+})
 
 # 使用自动URL路由连接我们的API。
 # 另外，我们还包括支持浏览器浏览API的登录URL。
 urlpatterns = [
-     url(r'^api/athena/1.0/stocks/$', views.StockList.as_view()),
-     url(r'^api/athena/1.0/stocks/(?P<pk>[0-9]+)/$', views.StockDetail.as_view()),
+     url(r'^api/athena/1.0/stocks/$', stock_list, name='stock-list'),
+     url(r'^api/athena/1.0/stocks/(?P<pk>[0-9]+)/$', stock_detail, name='stock-detail'),
      # url(r'^api/athena/1.0/stocks/$', views.stock_list),
      # url(r'^api/athena/1.0/stocks/(?P<pk>[0-9]+)/$', views.stock_detail),
      url(r'^', include(router.urls)),
