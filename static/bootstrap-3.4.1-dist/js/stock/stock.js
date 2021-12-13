@@ -116,6 +116,12 @@ function findBtnClick() {
                 align: 'center'
             },
             {
+                title: '名称',
+                field: 'name',
+                sortable: true,
+                align: 'center'
+            },
+            {
                 title: '交易日期',
                 field: 'date',
                 sortable: true,

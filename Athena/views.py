@@ -156,9 +156,9 @@ class StockInfoView(LoginRequiredMixin, View):
                     stock_info_dict = dict(zip(key_list, h))
                     stock = Stock.objects.get(cn_code=c['code'])
                     stock_info_dict['code'] = stock
-                    stock_info = StockInfo(**stock_info_dict)
+                    stock_info = StockInfo.objects.get_or_create(**stock_info_dict)
                     stock_info_list.append(stock_info)
-        StockInfo.objects.bulk_create(stock_info_list, ignore_conflicts=True)
+
         # 查询数据返回前端
         start_date = data['start'][0:4] + '-' + data['start'][4:6] + '-' + data['start'][6:8]
         end_date = data['end'][0:4] + '-' + data['end'][4:6] + '-' + data['end'][6:8]
@@ -173,11 +173,12 @@ class StockInfoView(LoginRequiredMixin, View):
         for s in stocks:
             s['fields']['id'] = s['pk']
             s['fields']['code'] = stock.code
+            s['fields']['name'] = stock.name
             res_rows.append(s['fields'])
         res_dict['msg'] = 'success'
         res_dict['total'] = len(stock_info_query_set)
         res_dict['rows'] = res_rows
-        res = json.dumps(res_dict)
+        res = json.dumps(res_dict, ensure_ascii=False)
         logger.info('返回前端数据：' + res)
         return HttpResponse(res)
 
