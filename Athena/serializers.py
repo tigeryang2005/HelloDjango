@@ -1,12 +1,12 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 
-from Athena.models import Stock
+from Athena.models import StockInfo
 
 
-class StockSerializer(serializers.ModelSerializer):
+class StockInfoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Stock
+        model = StockInfo
         # fields = ('id', 'code',)
         fields = '__all__'
 

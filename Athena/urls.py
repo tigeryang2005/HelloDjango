@@ -1,8 +1,8 @@
 from django.conf.urls import url, include
-from django.urls import path, re_path
+from django.urls import path
 from rest_framework import routers
 
-from Athena.views import StockIndexView, StockView, Login, Register, Logout, StockViewSet
+from Athena.views import StockIndexView, StockInfoView, Login, Register, Logout, StockInfoViewSet
 from . import views
 
 router = routers.DefaultRouter()
@@ -11,12 +11,12 @@ router.register(r'groups', views.GroupViewSet)
 # 用router 没有api的版本号
 # router.register(r'stock', views.StockViewSet)
 
-stock_list = StockViewSet.as_view({
+stock_list = StockInfoViewSet.as_view({
      'get': 'list',
      'post': 'create'
 })
 
-stock_detail = StockViewSet.as_view({
+stock_detail = StockInfoViewSet.as_view({
      'get': 'retrieve',
      'put': 'update',
      'patch': 'partial_update',
@@ -36,17 +36,7 @@ urlpatterns = [
      path('register/', Register.as_view(), name='register'),
      path('logout/', Logout.as_view(), name='logout'),
      path('stock/index/', StockIndexView.as_view(), name='stock_index'),
-     path('stock/', StockView.as_view(), name='stock'),
-     path('book/update/', views.update_book, name='update_book'),
-     path('book/edit/', views.edit_book, name='edit_book'),
-     re_path(r'book/del/(?P<book_id>\d+)/', views.del_book, name='del_book'),
-     re_path('book/add/', views.add_book, name='add_book'),
-     path('book/list', views.list_book, name='list_book'),
-     path('', views.hello_world),
-     re_path('^demo/$', views.demo, name='demo'),
-     re_path('^index/$', views.index),
-     re_path(r'^index/(?P<year>[0-9]{4})/$', views.index_year),
-     re_path(r'^index/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/$', views.index_year_month, name='index_year_month'),
+    path('stock/', StockInfoView.as_view(), name='stock'),
 ]
 
 # urlpatterns = format_suffix_patterns(urlpatterns)

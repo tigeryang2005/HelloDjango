@@ -1,10 +1,24 @@
 from django.db import models
 
 # Create your models here.
+from django.db.models import UniqueConstraint
 
 
 class Stock(models.Model):
     code = models.CharField(verbose_name='代码', max_length=10)
+    cn_code = models.CharField(verbose_name='cn_代码', max_length=10)
+    name = models.CharField(verbose_name='股票名称', max_length=10)
+    category = models.CharField(verbose_name='市场名称', max_length=2)
+    tag = models.CharField(verbose_name='类型', max_length=20)
+
+    class Meta:
+        indexes = [models.Index(fields=['code', 'cn_code'], name='code_idx'), ]
+        UniqueConstraint(fields=['code', ], name='unique_code')
+        db_table = 'stock'
+
+
+class StockInfo(models.Model):
+    code = models.ForeignKey(Stock, on_delete=models.CASCADE)
     date = models.DateField(verbose_name='交易日期')
     open = models.FloatField(verbose_name='开盘价')
     close = models.FloatField(verbose_name='收盘价')
@@ -20,37 +34,4 @@ class Stock(models.Model):
         unique_together = ['code', 'date']
         indexes = [models.Index(fields=['code', 'date']), ]
         ordering = ('-date', 'code',)
-
-
-class Books(models.Model):
-    name = models.CharField(max_length=30)
-    author = models.CharField(max_length=100)
-    publisher = models.CharField(max_length=100)
-    abstract = models.TextField()
-    img_url = models.CharField(max_length=150, null=True)
-    pub_date = models.DateField()
-    price = models.FloatField()
-
-
-class Student(models.Model):
-    name = models.CharField(max_length=20)
-    age = models.IntegerField(default=24)
-    sex = models.CharField(max_length=1, default='0')
-    address = models.CharField(max_length=100, null=True)
-#     一对多关系
-    bid = models.ForeignKey(to='BanJi', on_delete=models.CASCADE, default=1)
-
-
-class StuInfo(models.Model):
-    sid = models.OneToOneField('Student', on_delete=models.CASCADE)
-    xueli = models.CharField(max_length=20)
-    phone = models.CharField(max_length=20)
-
-
-class BanJi(models.Model):
-    name = models.CharField(max_length=20)
-
-
-class Teacher(models.Model):
-    name = models.CharField(max_length=20)
-    bid = models.ManyToManyField(to='BanJi')
+        db_table = 'stock_info'

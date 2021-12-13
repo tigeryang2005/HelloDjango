@@ -1,13 +1,21 @@
-from django.forms import ModelForm
-from django import forms
-from Athena.models import Stock
-from django.contrib.auth.models import User
 from captcha.fields import CaptchaField
+from django import forms
+from django.contrib.auth.models import User
+from django.forms import ModelForm
+
+from Athena.models import StockInfo
 
 
-class StockForm(ModelForm):
+class StockInfoForm(ModelForm):
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     code = cleaned_data.get('code')
+    #     stock = Stock.objects.filter(code=code)
+    #     if len(stock) == 0:
+    #         self.add_error('code', '没有该股票代码,请重新输入')
+
     class Meta:
-        model = Stock
+        model = StockInfo
         fields = '__all__'
 
 
