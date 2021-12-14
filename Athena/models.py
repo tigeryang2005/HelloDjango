@@ -12,7 +12,7 @@ class Stock(models.Model):
     tag = models.CharField(verbose_name='类型', max_length=20)
 
     class Meta:
-        indexes = [models.Index(fields=['code', 'cn_code'], name='code_idx'), ]
+        indexes = [models.Index(fields=['code', 'cn_code', 'name', ], name='code_idx'), ]
         UniqueConstraint(fields=['code', ], name='unique_code')
         db_table = 'stock'
 

@@ -185,16 +185,18 @@ class StockInfoView(LoginRequiredMixin, View):
     def post(self, request):
         data = json.loads(request.body)
         logger.info('前端发来的请求：' + json.dumps(data))
-        stock_form = StockInfoForm(data)
+        data['code'] = Stock.objects.get(code=data['code'].zfill(6)).id
+        stock_info_form = StockInfoForm(data)
         # 表单验证
-        if stock_form.is_valid():
+        if stock_info_form.is_valid():
+            stock_info = stock_info_form.save()
+            data['id'] = stock_info.id
+            data['name'] = stock_info.code.name
+            logger.info(serializers.serialize('json', [stock_info]))
             res_data = [data]
-            stock = stock_form.save()
-            data['id'] = stock.id
-            logger.info(serializers.serialize('json', [stock]))
             res = {'msg': "success", 'data': res_data}
         else:
-            res = {'msg': "failed", 'data': stock_form.errors}
+            res = {'msg': "failed", 'data': stock_info_form.errors}
 
         res = json.dumps(res, ensure_ascii=False)
         logger.info('增加后的数据为:' + res)
@@ -204,12 +206,12 @@ class StockInfoView(LoginRequiredMixin, View):
         data = json.loads(request.body)
         logger.info('前端发来的请求：' + json.dumps(data))
         stock_info = StockInfo.objects.get(pk=data.get('id'))
-        # stock_info.code = Stock.objects.get(code=data.get('code'))
         data['code'] = stock_info.code
         stock_info_form = StockInfoForm(data, instance=stock_info)
         if stock_info_form.is_valid():
             res_data = data
-            res_data['code'] = stock_info_form.instance.code.id
+            res_data['code'] = stock_info.code.code
+            res_data['name'] = stock_info.code.name
             stock_info = stock_info_form.save()
             logger.info(serializers.serialize('json', [stock_info]))
             res = {'msg': "success", 'data': res_data}
@@ -222,7 +224,7 @@ class StockInfoView(LoginRequiredMixin, View):
 
     def delete(self, request):
         data = json.loads(request.body)
-        logger.info('前端发来的请求：' + request.body)
+        logger.info('前端发来的请求：' + json.dumps(data))
         StockInfo.objects.filter(id__in=data).delete()
         res = json.dumps(data)
         logger.info("删除的数据id为：" + res)
