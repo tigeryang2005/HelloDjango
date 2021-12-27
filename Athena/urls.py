@@ -36,7 +36,7 @@ urlpatterns = [
      path('register/', Register.as_view(), name='register'),
      path('logout/', Logout.as_view(), name='logout'),
      path('stock/index/', StockIndexView.as_view(), name='stock_index'),
-    path('stock/', StockInfoView.as_view(), name='stock'),
+     path('stock/', StockInfoView.as_view(), name='stock'),
 ]
 
 # urlpatterns = format_suffix_patterns(urlpatterns)
