@@ -13,10 +13,19 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+# 新增
+from django.conf import settings
+# 新增
+from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include
+# 新增
+from django.views import static
 
 urlpatterns = [
+    # 以下是新增
+    url(r'^static/(?P<path>.*)$', static.serve,
+        {'document_root': settings.STATIC_ROOT}, name='static'),
     path('captcha/', include('captcha.urls')),
     path('admin/', admin.site.urls),
     path('', include('Athena.urls')),
