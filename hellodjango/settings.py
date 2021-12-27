@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'werkzeug_debugger_runserver',
+    'django_extensions',
     'captcha',
     'rest_framework',
     'Athena',
@@ -88,7 +90,7 @@ DATABASES = {
         'NAME': 'mydb',
         'USER': 'root',
         'PASSWORD': 'root',
-        'HOST': '127.0.0.1',
+        'HOST': '192.168.1.119',
         'PORT': '3306',
     }
 }
@@ -129,6 +131,11 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+# # 新增行
+# STATIC_ROOT = 'static'
+# # 修改地方
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, '/static/'), ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
